@@ -1,0 +1,15 @@
+[gd_scene format=3 uid="uid://cw75lxa0v0m3r"]
+
+[node name="Main" type="Node2D"]
+
+[node name="Camera2D" type="Camera2D" parent="."]
+position = Vector2(0, 0)
+
+[node name="Label" type="Label" parent="."]
+offset_left = -76.0
+offset_top = -13.0
+offset_right = 76.0
+offset_bottom = 13.0
+text = "Light We Can See"
+horizontal_alignment = 1
+vertical_alignment = 1
