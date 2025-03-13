@@ -1,0 +1,225 @@
+[gd_scene load_steps=12 format=3 uid="uid://cybgwi7xo8owy"]
+
+[ext_resource type="Script" path="res://scripts/level_2.gd" id="1_57wln"]
+[ext_resource type="PackedScene" uid="uid://c34abxc4q2lp0" path="res://scenes/door.tscn" id="2_2vv76"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_u7i66"]
+size = Vector3(10, 0.5, 10)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_0ehc7"]
+size = Vector3(10, 0.5, 10)
+
+[sub_resource type="BoxMesh" id="BoxMesh_ykcmb"]
+size = Vector3(10, 0.2, 0.5)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_j3wq8"]
+albedo_color = Color(0.478431, 0.47451, 0.482353, 1)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_l7qja"]
+size = Vector3(10, 0.2, 0.5)
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_yk4n8"]
+top_radius = 0.5
+bottom_radius = 0.5
+height = 0.5
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_0f4gi"]
+albedo_color = Color(0.133333, 0.2, 0.588235, 1)
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_l8bnp"]
+top_radius = 0.3
+bottom_radius = 0.3
+height = 0.3
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_cw8uq"]
+size = Vector3(12, 2, 3)
+
+[node name="Level2" type="Node3D"]
+script = ExtResource("1_57wln")
+
+[node name="Environment" type="Node3D" parent="."]
+
+[node name="Floor" type="StaticBody3D" parent="Environment"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.25, 0)
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Environment/Floor"]
+mesh = SubResource("BoxMesh_u7i66")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Environment/Floor"]
+shape = SubResource("BoxShape3D_0ehc7")
+
+[node name="Walls" type="Node3D" parent="Environment"]
+
+[node name="WallNorth" type="StaticBody3D" parent="Environment/Walls"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, -5)
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Environment/Walls/WallNorth"]
+transform = Transform3D(10, 0, 0, 0, 3, 0, 0, 0, 0.2, 0, 0, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Environment/Walls/WallNorth"]
+transform = Transform3D(10, 0, 0, 0, 3, 0, 0, 0, 0.2, 0, 0, 0)
+
+[node name="WallSouth" type="StaticBody3D" parent="Environment/Walls"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 5)
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Environment/Walls/WallSouth"]
+transform = Transform3D(10, 0, 0, 0, 3, 0, 0, 0, 0.2, 0, 0, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Environment/Walls/WallSouth"]
+transform = Transform3D(10, 0, 0, 0, 3, 0, 0, 0, 0.2, 0, 0, 0)
+
+[node name="WallEast" type="StaticBody3D" parent="Environment/Walls"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 1.5, 0)
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Environment/Walls/WallEast"]
+transform = Transform3D(0.2, 0, 0, 0, 3, 0, 0, 0, 10.2, 0, 0, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Environment/Walls/WallEast"]
+transform = Transform3D(0.2, 0, 0, 0, 3, 0, 0, 0, 10.2, 0, 0, 0)
+
+[node name="WallWest" type="StaticBody3D" parent="Environment/Walls"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5, 1.5, 0)
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Environment/Walls/WallWest"]
+transform = Transform3D(0.2, 0, 0, 0, 3, 0, 0, 0, 10.2, 0, 0, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Environment/Walls/WallWest"]
+transform = Transform3D(0.2, 0, 0, 0, 3, 0, 0, 0, 10.2, 0, 0, 0)
+
+[node name="Door" parent="." instance=ExtResource("2_2vv76")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -4)
+
+[node name="PhysicsObjects" type="Node3D" parent="."]
+
+[node name="Lever" type="StaticBody3D" parent="PhysicsObjects"]
+transform = Transform3D(1, 0, 0, 0, 0.984808, -0.173648, 0, 0.173648, 0.984808, 0, 0.5, 0)
+collision_layer = 2
+collision_mask = 3
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="PhysicsObjects/Lever"]
+mesh = SubResource("BoxMesh_ykcmb")
+surface_material_override/0 = SubResource("StandardMaterial3D_j3wq8")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="PhysicsObjects/Lever"]
+shape = SubResource("BoxShape3D_l7qja")
+
+[node name="Fulcrum" type="MeshInstance3D" parent="PhysicsObjects/Lever"]
+transform = Transform3D(1, 0, 0, 0, 1, 1.74846e-07, 0, -1.74846e-07, 1, 0, -0.3, 0)
+mesh = SubResource("CylinderMesh_yk4n8")
+
+[node name="Weight1" type="MeshInstance3D" parent="PhysicsObjects"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 0.5, 0)
+mesh = SubResource("CylinderMesh_l8bnp")
+surface_material_override/0 = SubResource("StandardMaterial3D_0f4gi")
+
+[node name="Label3D" type="Label3D" parent="PhysicsObjects/Weight1"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.3, 0)
+billboard = 1
+text = "20 kg"
+
+[node name="Weight2" type="MeshInstance3D" parent="PhysicsObjects"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0.5, 2)
+mesh = SubResource("CylinderMesh_l8bnp")
+
+[node name="Label3D" type="Label3D" parent="PhysicsObjects/Weight2"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.3, 0)
+billboard = 1
+text = "10 kg"
+
+[node name="InteractArea" type="Area3D" parent="PhysicsObjects/Lever"]
+collision_layer = 2
+collision_mask = 3
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="PhysicsObjects/Lever/InteractArea"]
+shape = SubResource("BoxShape3D_cw8uq")
+
+[node name="QuestionUI" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 1
+
+[node name="Panel" type="Panel" parent="QuestionUI"]
+visible = false
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -200.0
+offset_top = -150.0
+offset_right = 200.0
+offset_bottom = 150.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="QuestionLabel" type="Label" parent="QuestionUI/Panel"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_top = 20.0
+offset_bottom = 100.0
+grow_horizontal = 2
+text = "Where should you place a 10 kg weight to balance a 20 kg weight positioned 2 meters from the fulcrum?"
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 2
+
+[node name="OptionsContainer" type="VBoxContainer" parent="QuestionUI/Panel"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -150.0
+offset_top = -50.0
+offset_right = 150.0
+offset_bottom = 90.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 10
+
+[node name="FeedbackLabel" type="Label" parent="QuestionUI/Panel"]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -50.0
+offset_bottom = -20.0
+grow_horizontal = 2
+grow_vertical = 0
+text = "Select an answer"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="LevelInfo" type="Label" parent="."]
+offset_left = 20.0
+offset_top = 20.0
+offset_right = 400.0
+offset_bottom = 60.0
+text = "Level 2: Lever Balance
+Approach the lever to solve the physics puzzle."
+
+[node name="Guides" type="Node3D" parent="."]
+
+[node name="Position1m" type="Label3D" parent="Guides"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0.15, 0)
+text = "1m"
+
+[node name="Position2m" type="Label3D" parent="Guides"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 0.15, 0)
+text = "2m"
+
+[node name="Position3m" type="Label3D" parent="Guides"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 0.15, 0)
+text = "3m"
+
+[node name="Position4m" type="Label3D" parent="Guides"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 0.15, 0)
+text = "4m"

@@ -1,0 +1,38 @@
+[gd_scene load_steps=6 format=3 uid="uid://c34abxc4q2lp0"]
+
+[ext_resource type="Script" path="res://scripts/door.gd" id="1_1bqp1"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_i1uxl"]
+size = Vector3(2, 3, 0.2)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_xonrd"]
+albedo_color = Color(0.462745, 0.294118, 0.196078, 1)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_q3ik2"]
+size = Vector3(2, 3, 0.2)
+
+[sub_resource type="ViewportTexture" id="ViewportTexture_nh7b0"]
+
+[node name="Door" type="StaticBody3D"]
+collision_layer = 3
+collision_mask = 3
+script = ExtResource("1_1bqp1")
+
+[node name="DoorMesh" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 0)
+mesh = SubResource("BoxMesh_i1uxl")
+surface_material_override/0 = SubResource("StandardMaterial3D_xonrd")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 0)
+shape = SubResource("BoxShape3D_q3ik2")
+
+[node name="LockIndicator" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, 0.15)
+
+[node name="Sprite3D" type="Sprite3D" parent="LockIndicator"]
+modulate = Color(1, 0, 0, 1)
+texture = SubResource("ViewportTexture_nh7b0")
+
+[node name="DoorSound" type="AudioStreamPlayer3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 0)
