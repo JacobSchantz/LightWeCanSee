@@ -1,7 +1,8 @@
-[gd_scene load_steps=6 format=3 uid="uid://c0c2ld8o4i31y"]
+[gd_scene load_steps=7 format=3 uid="uid://c0c2ld8o4i31y"]
 
 [ext_resource type="Script" path="res://scripts/level_manager.gd" id="1_bxjka"]
 [ext_resource type="PackedScene" uid="uid://dccutkhjc0ydt" path="res://scenes/player.tscn" id="2_6q5aq"]
+[ext_resource type="PackedScene" uid="uid://bw7hdh5yqcqd4" path="res://scenes/pause_menu.tscn" id="3_xp0yy"]
 
 [sub_resource type="Animation" id="Animation_fkun7"]
 resource_name = "fade_in"
@@ -66,3 +67,6 @@ color = Color(0, 0, 0, 0)
 libraries = {
 "": SubResource("AnimationLibrary_n0knj")
 }
+[node name="PauseMenu" parent="." instance=ExtResource("3_xp0yy")]
+visible = false
+process_mode = 3

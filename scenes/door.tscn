@@ -11,7 +11,15 @@ albedo_color = Color(0.462745, 0.294118, 0.196078, 1)
 [sub_resource type="BoxShape3D" id="BoxShape3D_q3ik2"]
 size = Vector3(2, 3, 0.2)
 
-[sub_resource type="ViewportTexture" id="ViewportTexture_nh7b0"]
+[sub_resource type="SphereMesh" id="SphereMesh_eoxgp"]
+radius = 0.15
+height = 0.3
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_aqrtj"]
+albedo_color = Color(1, 0, 0, 1)
+emission_enabled = true
+emission = Color(1, 0, 0, 1)
+emission_energy_multiplier = 1.5
 
 [node name="Door" type="StaticBody3D"]
 collision_layer = 3
@@ -30,9 +38,9 @@ shape = SubResource("BoxShape3D_q3ik2")
 [node name="LockIndicator" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, 0.15)
 
-[node name="Sprite3D" type="Sprite3D" parent="LockIndicator"]
-modulate = Color(1, 0, 0, 1)
-texture = SubResource("ViewportTexture_nh7b0")
+[node name="Sprite3D" type="MeshInstance3D" parent="LockIndicator"]
+mesh = SubResource("SphereMesh_eoxgp")
+surface_material_override/0 = SubResource("StandardMaterial3D_aqrtj")
 
 [node name="DoorSound" type="AudioStreamPlayer3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 0)

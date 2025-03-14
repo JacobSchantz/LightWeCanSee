@@ -4,6 +4,10 @@ const SPEED = 5.0
 const JUMP_VELOCITY = 4.5
 const ROTATION_SPEED = 5.0
 
+# Fall detection
+const FALL_THRESHOLD = -30.0  # Y position below which the player is considered to have fallen off
+var spawn_position = Vector3.ZERO  # Store initial spawn position
+
 # Camera control
 var mouse_sensitivity = 0.002
 var camera_angle = 0
@@ -23,8 +27,20 @@ func _ready():
 	
 	# Capture mouse for camera control
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+	
+	# Store initial spawn position
+	spawn_position = global_position
 
 func _physics_process(delta):
+	# Don't process player movement when game is paused
+	if get_tree().paused:
+		return
+		
+	# Check if player has fallen off the world
+	if global_position.y < FALL_THRESHOLD:
+		restart_level()
+		return
+	
 	# Add the gravity
 	if not is_on_floor():
 		velocity.y -= gravity * delta
@@ -33,20 +49,30 @@ func _physics_process(delta):
 	if Input.is_action_just_pressed("ui_accept") and is_on_floor():
 		velocity.y = JUMP_VELOCITY
 
-	# Get the input direction and handle the movement/deceleration
-	var input_dir = Input.get_vector("ui_left", "ui_right", "ui_up", "ui_down")
-	var direction = (transform.basis * Vector3(input_dir.x, 0, input_dir.y)).normalized()
+	# Get the input direction
+	# Note: Reversing up/down to fix the flipped forward/backward movement
+	var input_dir = Input.get_vector("ui_left", "ui_right", "ui_down", "ui_up")
 	
-	if direction:
-		# Gradually rotate the player to face the movement direction
-		var target_rotation = atan2(-direction.x, -direction.z)
-		var current_rotation = rotation.y
-		var rotation_diff = wrapf(target_rotation - current_rotation, -PI, PI)
-		rotation.y += rotation_diff * ROTATION_SPEED * delta
-		
-		velocity.x = direction.x * SPEED
-		velocity.z = direction.z * SPEED
+	# Calculate movement direction relative to camera orientation
+	# This makes movement relative to where the player is looking
+	var forward = -transform.basis.z
+	var right = transform.basis.x
+	
+	# Zero out the y component and normalize
+	forward.y = 0
+	right.y = 0
+	forward = forward.normalized()
+	right = right.normalized()
+	
+	# Calculate the movement direction vector
+	var move_direction = right * input_dir.x + forward * input_dir.y
+	
+	if move_direction.length() > 0.1:
+		# Apply movement without changing rotation
+		velocity.x = move_direction.x * SPEED
+		velocity.z = move_direction.z * SPEED
 	else:
+		# Decelerate smoothly when no input
 		velocity.x = move_toward(velocity.x, 0, SPEED)
 		velocity.z = move_toward(velocity.z, 0, SPEED)
 
@@ -61,16 +87,36 @@ func _physics_process(delta):
 
 func _input(event):
 	if event is InputEventMouseMotion:
-		# Horizontal camera rotation - rotate the player
-		rotation.y -= event.relative.x * mouse_sensitivity
-		
-		# Vertical camera rotation - rotate the camera pivot
-		camera_angle -= event.relative.y * mouse_sensitivity
-		camera_angle = clamp(camera_angle, deg_to_rad(min_pitch), deg_to_rad(max_pitch))
-		pivot.rotation.x = camera_angle
-		
-	if event.is_action_pressed("ui_cancel"):
-		if Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
-			Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
-		else:
-			Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+		# Only process mouse movement when game is not paused
+		if not get_tree().paused:
+			# Horizontal camera rotation - rotate the player
+			rotation.y -= event.relative.x * mouse_sensitivity
+			
+			# Vertical camera rotation - rotate the camera pivot
+			camera_angle -= event.relative.y * mouse_sensitivity
+			camera_angle = clamp(camera_angle, deg_to_rad(min_pitch), deg_to_rad(max_pitch))
+			pivot.rotation.x = camera_angle
+	
+	# NOTE: Escape key handling is now done in the main script to properly show the pause menu
+
+# Handles restarting the level when the player falls off the world
+func restart_level():
+	# Display a brief message (optional)
+	print("Player fell out of bounds - restarting level")
+	
+	# Option 1: Simply respawn at the initial position
+	global_position = spawn_position
+	velocity = Vector3.ZERO
+	
+	# Option 2: If you want a proper level restart, uncomment this instead
+	# get_tree().reload_current_scene()
+	
+	# Play respawn sound effect if available
+	if has_node("RespawnSound"):
+		get_node("RespawnSound").play()
+	
+	# Optional: Brief screen effect to indicate respawn
+	if has_node("/root/LevelManager"):
+		var level_manager = get_node("/root/LevelManager")
+		if level_manager.has_method("play_respawn_effect"):
+			level_manager.play_respawn_effect()

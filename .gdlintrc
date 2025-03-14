@@ -1,0 +1,12 @@
+{
+    "line_length": 100,
+    "function_args": 10,
+    "class_variables": 50,
+    "class_constants": 30,
+    "function_variables": 10,
+    "loops_with_type_only": false,
+    "sub_indent": 1,
+    "use_type_hints": true,
+    "use_inner_class_types": false,
+    "class_load_variable_name": null
+}

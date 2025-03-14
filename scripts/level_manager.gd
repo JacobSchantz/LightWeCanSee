@@ -15,6 +15,8 @@ func _ready():
 	
 	load_level(current_level)
 
+
+
 func load_level(level_index):
 	if level_index < 0 or level_index >= levels.size():
 		print("Level index out of range!")
@@ -56,8 +58,11 @@ func _on_level_completed():
 
 # Debug keys to manually switch levels
 func _input(event):
+	# Level switching debug keys
 	if event is InputEventKey and event.pressed:
 		if event.keycode == KEY_F1:
 			load_level(0)  # Load level 1
 		elif event.keycode == KEY_F2:
 			load_level(1)  # Load level 2
+
+

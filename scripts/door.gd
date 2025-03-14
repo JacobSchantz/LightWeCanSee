@@ -74,5 +74,11 @@ func close_door():
 	emit_signal("door_closed")
 
 func update_lock_indicator():
-	if lock_indicator:
-		lock_indicator.get_node("Sprite3D").modulate = Color.RED if is_locked else Color.GREEN
+	if lock_indicator and lock_indicator.has_node("Sprite3D"):
+		var indicator = lock_indicator.get_node("Sprite3D")
+		var material = StandardMaterial3D.new()
+		material.albedo_color = Color.RED if is_locked else Color.GREEN
+		material.emission_enabled = true
+		material.emission = Color.RED if is_locked else Color.GREEN
+		material.emission_energy_multiplier = 1.5
+		indicator.set_surface_override_material(0, material)

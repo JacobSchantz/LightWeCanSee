@@ -1,6 +1,10 @@
-[gd_scene format=3 uid="uid://cw75lxa0v0m3r"]
+[gd_scene load_steps=3 format=3 uid="uid://cw75lxa0v0m3r"]
+
+[ext_resource type="Script" path="res://scripts/main.gd" id="1_1a1q8"]
+[ext_resource type="PackedScene" path="res://scenes/pause_menu.tscn" id="2_l2qr5"]
 
 [node name="Main" type="Node2D"]
+script = ExtResource("1_1a1q8")
 
 [node name="Camera2D" type="Camera2D" parent="."]
 position = Vector2(0, 0)
@@ -13,3 +17,6 @@ offset_bottom = 13.0
 text = "Light We Can See"
 horizontal_alignment = 1
 vertical_alignment = 1
+
+[node name="PauseMenu" parent="." instance=ExtResource("2_l2qr5")]
+visible = false
