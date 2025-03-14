@@ -1,0 +1,108 @@
+[gd_scene load_steps=9 format=3 uid="uid://b7x0mxkd8ck33"]
+
+[ext_resource type="Script" path="res://scripts/base_level.gd" id="1_auhbi"]
+[ext_resource type="PackedScene" uid="uid://dccutkhjc0ydt" path="res://scenes/player.tscn" id="2_h8lvw"]
+[ext_resource type="PackedScene" uid="uid://bw5mpcq2fmypw" path="res://scenes/pushable_box.tscn" id="3_1jc8l"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_smpvs"]
+size = Vector3(20, 0.5, 20)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_7x7d7"]
+albedo_color = Color(0.352941, 0.352941, 0.352941, 1)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_hkw77"]
+size = Vector3(20, 0.5, 20)
+
+[sub_resource type="BoxMesh" id="BoxMesh_gv24h"]
+size = Vector3(20, 5, 1)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_dxl4v"]
+size = Vector3(20, 5, 1)
+
+[node name="ForceDemo" type="Node3D"]
+script = ExtResource("1_auhbi")
+
+[node name="Environment" type="Node3D" parent="."]
+
+[node name="Floor" type="StaticBody3D" parent="Environment"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.25, 0)
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Environment/Floor"]
+mesh = SubResource("BoxMesh_smpvs")
+surface_material_override/0 = SubResource("StandardMaterial3D_7x7d7")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Environment/Floor"]
+shape = SubResource("BoxShape3D_hkw77")
+
+[node name="Wall1" type="StaticBody3D" parent="Environment"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.5, -10)
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Environment/Wall1"]
+mesh = SubResource("BoxMesh_gv24h")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Environment/Wall1"]
+shape = SubResource("BoxShape3D_dxl4v")
+
+[node name="Wall2" type="StaticBody3D" parent="Environment"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.5, 10)
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Environment/Wall2"]
+mesh = SubResource("BoxMesh_gv24h")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Environment/Wall2"]
+shape = SubResource("BoxShape3D_dxl4v")
+
+[node name="Wall3" type="StaticBody3D" parent="Environment"]
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -10, 2.5, 0)
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Environment/Wall3"]
+mesh = SubResource("BoxMesh_gv24h")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Environment/Wall3"]
+shape = SubResource("BoxShape3D_dxl4v")
+
+[node name="Wall4" type="StaticBody3D" parent="Environment"]
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 10, 2.5, 0)
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Environment/Wall4"]
+mesh = SubResource("BoxMesh_gv24h")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Environment/Wall4"]
+shape = SubResource("BoxShape3D_dxl4v")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="Environment"]
+transform = Transform3D(0.866025, -0.25, 0.433013, 0, 0.866025, 0.5, -0.5, -0.433013, 0.75, 0, 5, 0)
+shadow_enabled = true
+
+[node name="Player" parent="." instance=ExtResource("2_h8lvw")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 8)
+
+[node name="PushableBoxes" type="Node3D" parent="."]
+
+[node name="PushableBox1" parent="PushableBoxes" instance=ExtResource("3_1jc8l")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5, 1, 0)
+mass = 5.0
+object_name = "Light Box"
+
+[node name="PushableBox2" parent="PushableBoxes" instance=ExtResource("3_1jc8l")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+mass = 15.0
+object_name = "Medium Box"
+
+[node name="PushableBox3" parent="PushableBoxes" instance=ExtResource("3_1jc8l")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 1, 0)
+mass = 30.0
+object_name = "Heavy Box"
+
+[node name="Instructions" type="Label3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4, -9)
+pixel_size = 0.01
+text = "Force Indicator Demo
+
+1. Interact with boxes using E key
+2. Adjust force using Up/Down arrows
+3. Apply force with Space
+4. Cancel with Escape
+
+Boxes have different masses: 5kg, 15kg, and 30kg"
+font_size = 64

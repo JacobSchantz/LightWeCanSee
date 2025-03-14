@@ -90,6 +90,12 @@ surface_material_override/0 = SubResource("StandardMaterial3D_b3k2g")
 [node name="CollisionShape3D" type="CollisionShape3D" parent="PhysicsObjects/Box"]
 shape = SubResource("BoxShape3D_55qm2")
 
+[node name="BoxLabel" type="Label3D" parent="PhysicsObjects/Box"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.0, 0)
+pixel_size = 0.005
+text = "Physics Box\n10 kg\nF = m × a"  
+font_size = 48
+
 [node name="InteractArea" type="Area3D" parent="PhysicsObjects/Box"]
 collision_layer = 2
 collision_mask = 3
