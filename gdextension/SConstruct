@@ -1,0 +1,29 @@
+#!/usr/bin/env python
+import os
+import sys
+
+env = SConscript("godot-cpp/SConstruct")
+
+# For reference:
+# - CCFLAGS are compilation flags shared between C and C++
+# - CXXFLAGS are flags that apply only to C++ files
+# - CFLAGS are flags that apply only to C files
+
+# tweak this if you want to use different folders, or more folders, to store your source code in.
+env.Append(CPPPATH=["src/", "godot-cpp/include/", "godot-cpp/gen/include/"])
+sources = Glob("src/*.cpp")
+
+if env["platform"] == "macos":
+    library = env.SharedLibrary(
+        "bin/libphysicscalculator.{}.{}.framework/libphysicscalculator.{}.{}".format(
+            env["platform"], env["target"], env["platform"], env["target"]
+        ),
+        source=sources,
+    )
+else:
+    library = env.SharedLibrary(
+        "bin/libphysicscalculator{}{}".format(env["suffix"], env["SHLIBSUFFIX"]),
+        source=sources,
+    )
+
+Default(library)

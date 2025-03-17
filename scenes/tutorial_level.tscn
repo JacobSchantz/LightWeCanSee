@@ -1,0 +1,163 @@
+[gd_scene load_steps=12 format=3 uid="uid://cxgvg1ym7kxjb"]
+
+[ext_resource type="Script" path="res://scripts/tutorial_level.gd" id="1_tnuqv"]
+[ext_resource type="PackedScene" uid="uid://c34abxc4q2lp0" path="res://scenes/door.tscn" id="2_e7fmg"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_u7i66"]
+size = Vector3(20, 0.5, 20)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_0ehc7"]
+size = Vector3(20, 0.5, 20)
+
+[sub_resource type="BoxMesh" id="BoxMesh_blue"]
+size = Vector3(1.5, 1.5, 1.5)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_blue"]
+albedo_color = Color(0.1, 0.3, 0.8, 1)
+emission_enabled = true
+emission = Color(0.1, 0.3, 0.8, 1)
+emission_energy_multiplier = 0.5
+
+[sub_resource type="QuadMesh" id="QuadMesh_red"]
+size = Vector2(1.5, 1.5)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_red"]
+albedo_color = Color(0.8, 0.1, 0.1, 1)
+emission_enabled = true
+emission = Color(0.8, 0.1, 0.1, 1)
+emission_energy_multiplier = 0.5
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_blue"]
+size = Vector3(1.5, 1.5, 1.5)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_instr"]
+bg_color = Color(0.1, 0.1, 0.1, 0.7)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[sub_resource type="LabelSettings" id="LabelSettings_prog"]
+font_size = 18
+font_color = Color(0.8, 0.8, 0.8, 1)
+outline_size = 2
+outline_color = Color(0, 0, 0, 1)
+
+[node name="TutorialLevel" type="Node3D"]
+script = ExtResource("1_tnuqv")
+
+[node name="Environment" type="Node3D" parent="."]
+
+[node name="Floor" type="StaticBody3D" parent="Environment"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.25, 0)
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Environment/Floor"]
+mesh = SubResource("BoxMesh_u7i66")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Environment/Floor"]
+shape = SubResource("BoxShape3D_0ehc7")
+
+[node name="Walls" type="Node3D" parent="Environment"]
+
+[node name="WallNorth" type="StaticBody3D" parent="Environment/Walls"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, -10)
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Environment/Walls/WallNorth"]
+transform = Transform3D(20, 0, 0, 0, 3, 0, 0, 0, 0.2, 0, 0, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Environment/Walls/WallNorth"]
+transform = Transform3D(20, 0, 0, 0, 3, 0, 0, 0, 0.2, 0, 0, 0)
+
+[node name="WallSouth" type="StaticBody3D" parent="Environment/Walls"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 10)
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Environment/Walls/WallSouth"]
+transform = Transform3D(20, 0, 0, 0, 3, 0, 0, 0, 0.2, 0, 0, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Environment/Walls/WallSouth"]
+transform = Transform3D(20, 0, 0, 0, 3, 0, 0, 0, 0.2, 0, 0, 0)
+
+[node name="WallEast" type="StaticBody3D" parent="Environment/Walls"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 1.5, 0)
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Environment/Walls/WallEast"]
+transform = Transform3D(0.2, 0, 0, 0, 3, 0, 0, 0, 20.2, 0, 0, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Environment/Walls/WallEast"]
+transform = Transform3D(0.2, 0, 0, 0, 3, 0, 0, 0, 20.2, 0, 0, 0)
+
+[node name="WallWest" type="StaticBody3D" parent="Environment/Walls"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 1.5, 0)
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Environment/Walls/WallWest"]
+transform = Transform3D(0.2, 0, 0, 0, 3, 0, 0, 0, 20.2, 0, 0, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Environment/Walls/WallWest"]
+transform = Transform3D(0.2, 0, 0, 0, 3, 0, 0, 0, 20.2, 0, 0, 0)
+
+[node name="Door" parent="." instance=ExtResource("2_e7fmg")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -8)
+
+[node name="PhysicsObjects" type="Node3D" parent="."]
+
+[node name="BlueBox" type="StaticBody3D" parent="PhysicsObjects"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.75, 0)
+collision_layer = 2
+collision_mask = 3
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="PhysicsObjects/BlueBox"]
+mesh = SubResource("BoxMesh_blue")
+surface_material_override/0 = SubResource("StandardMaterial3D_blue")
+
+[node name="RedFace" type="MeshInstance3D" parent="PhysicsObjects/BlueBox"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.76)
+mesh = SubResource("QuadMesh_red")
+surface_material_override/0 = SubResource("StandardMaterial3D_red")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="PhysicsObjects/BlueBox"]
+shape = SubResource("BoxShape3D_blue")
+
+[node name="TutorialUI" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="InstructionPanel" type="Panel" parent="TutorialUI"]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -300.0
+offset_top = -100.0
+offset_right = 300.0
+offset_bottom = -20.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_styles/panel = SubResource("StyleBoxFlat_instr")
+
+[node name="InstructionLabel" type="Label" parent="TutorialUI/InstructionPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+text = "Welcome to the tutorial level! Check out the blue box with a red face."
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 2
+
+[node name="ProgressLabel" type="Label" parent="TutorialUI"]
+layout_mode = 0
+offset_left = 20.0
+offset_top = 20.0
+offset_right = 300.0
+offset_bottom = 60.0
+text = "Tutorial Level"
+label_settings = SubResource("LabelSettings_prog")

@@ -1,0 +1,12 @@
+[
+  {
+    "directory": "/Users/jakeschantz/CascadeProjects/LightWeCanSee/gdextension",
+    "command": "clang++ -std=c++17 -I./src -I./godot-cpp/include -I./godot-cpp/gen/include -c src/physics_calculator.cpp -o src/physics_calculator.o",
+    "file": "src/physics_calculator.cpp"
+  },
+  {
+    "directory": "/Users/jakeschantz/CascadeProjects/LightWeCanSee/gdextension",
+    "command": "clang++ -std=c++17 -I./src -I./godot-cpp/include -I./godot-cpp/gen/include -c src/register_types.cpp -o src/register_types.o",
+    "file": "src/register_types.cpp"
+  }
+]

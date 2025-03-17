@@ -9,6 +9,7 @@ var levels = []
 func _ready():
 	# Register the levels
 	levels = [
+		preload("res://scenes/tutorial_level.tscn"),
 		preload("res://scenes/level_1.tscn"),
 		preload("res://scenes/level_2.tscn"),
 		preload("res://scenes/force_demo.tscn")
@@ -65,5 +66,3 @@ func _input(event):
 			load_level(0)  # Load level 1
 		elif event.keycode == KEY_F2:
 			load_level(1)  # Load level 2
-
-

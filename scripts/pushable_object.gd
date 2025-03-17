@@ -8,6 +8,7 @@ signal force_released
 @export var force_multiplier = 1.0
 @export var max_applied_force = 100.0
 @export var highlight_color: Color = Color(1.0, 0.8, 0.4, 1.0)
+@export var surface_friction = 0.3
 
 var original_materials = []
 var is_player_near = false
@@ -15,6 +16,7 @@ var applied_force = 0.0
 var is_being_pushed = false
 var push_direction = Vector3.ZERO
 var force_meter = null
+var physics_calculator = null
 
 # Reference to components
 @onready var mesh_instance = $MeshInstance3D
@@ -28,6 +30,14 @@ func _ready():
 				original_materials.append(mesh_instance.get_surface_override_material(i))
 		elif mesh_instance.mesh and mesh_instance.mesh.get_material():
 			original_materials.append(mesh_instance.mesh.get_material())
+	
+	# Initialize the C++ physics calculator - using try/catch to handle if extension isn't available
+	try:
+		if ClassDB.class_exists("PhysicsCalculator"):
+			physics_calculator = PhysicsCalculator.new()
+			print("C++ Physics Calculator initialized successfully")
+	except:
+		print("PhysicsCalculator extension not available, using GDScript implementation")
 	
 	# Set the mass
 	mass = mass_kg
@@ -47,8 +57,24 @@ func _ready():
 
 func _physics_process(delta):
 	if is_being_pushed and applied_force > 0:
-		# Apply the force in the push direction
-		apply_central_force(push_direction * applied_force)
+		# Use the C++ physics calculator if available
+		if physics_calculator:
+			try:
+				# Calculate force using C++ for better performance
+				var calculated_force = physics_calculator.calculate_complex_force(
+					push_direction, 
+					applied_force, 
+					mass_kg, 
+					surface_friction
+				)
+				apply_central_force(calculated_force)
+			except:
+				# Fallback to GDScript implementation if method call fails
+				print("C++ method call failed, using GDScript implementation")
+				apply_central_force(push_direction * applied_force)
+		else:
+			# Fallback to GDScript implementation
+			apply_central_force(push_direction * applied_force)
 		
 		# Visual feedback based on force
 		var movement_feedback = min(applied_force / max_applied_force, 1.0)
@@ -57,9 +83,10 @@ func _physics_process(delta):
 			material.albedo_color = material.albedo_color.lerp(highlight_color, movement_feedback * 0.5)
 			mesh_instance.set_surface_override_material(0, material)
 		
-		# Update the force label
+		# Update the force label with improved information
 		if box_label:
-			box_label.text = "%s\n%d kg\nForce: %.1f N" % [object_name, mass_kg, applied_force]
+			var calc_type = "C++" if (physics_calculator != null) else "GDScript"
+			box_label.text = "%s\n%d kg\nForce: %.1f N\nUsing: %s" % [object_name, mass_kg, applied_force, calc_type]
 			var force_color = Color.GREEN.lerp(Color.RED, movement_feedback)
 			box_label.modulate = force_color
 		
