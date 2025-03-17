@@ -1,4 +1,4 @@
-[gd_scene load_steps=16 format=3 uid="uid://cxgvg1ym7kxjb"]
+[gd_scene load_steps=18 format=3 uid="uid://cxgvg1ym7kxjb"]
 
 [ext_resource type="Script" path="res://scripts/tutorial_level.gd" id="1_tnuqv"]
 [ext_resource type="PackedScene" uid="uid://c34abxc4q2lp0" path="res://scenes/door.tscn" id="2_e7fmg"]
@@ -25,7 +25,7 @@ size = Vector2(1.5, 1.5)
 albedo_color = Color(0.8, 0.1, 0.1, 1)
 emission_enabled = true
 emission = Color(0.8, 0.1, 0.1, 1)
-emission_energy_multiplier = 1.5
+emission_energy_multiplier = 2.0
 
 [sub_resource type="QuadMesh" id="QuadMesh_green"]
 size = Vector2(1.5, 1.5)
@@ -40,9 +40,18 @@ emission_energy_multiplier = 2.0
 size = Vector2(1.5, 1.5)
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_yellow"]
-albedo_color = Color(1.0, 1.0, 0.1, 1)
+albedo_color = Color(1, 1, 0.1, 1)
 emission_enabled = true
-emission = Color(1.0, 1.0, 0.1, 1)
+emission = Color(1, 1, 0.1, 1)
+emission_energy_multiplier = 2.0
+
+[sub_resource type="QuadMesh" id="QuadMesh_purple"]
+size = Vector2(1.5, 1.5)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_purple"]
+albedo_color = Color(0.7, 0.1, 0.9, 1)
+emission_enabled = true
+emission = Color(0.7, 0.1, 0.9, 1)
 emission_energy_multiplier = 2.0
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_blue"]
@@ -129,6 +138,7 @@ surface_material_override/0 = SubResource("StandardMaterial3D_blue")
 
 [node name="RedFace" type="MeshInstance3D" parent="PhysicsObjects/BlueBox"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.76)
+visible = false
 mesh = SubResource("QuadMesh_red")
 surface_material_override/0 = SubResource("StandardMaterial3D_red")
 
@@ -141,6 +151,11 @@ surface_material_override/0 = SubResource("StandardMaterial3D_green")
 transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 0.76, 0, 0)
 mesh = SubResource("QuadMesh_yellow")
 surface_material_override/0 = SubResource("StandardMaterial3D_yellow")
+
+[node name="PurpleFace" type="MeshInstance3D" parent="PhysicsObjects/BlueBox"]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 0, 0, -0.76)
+mesh = SubResource("QuadMesh_purple")
+surface_material_override/0 = SubResource("StandardMaterial3D_purple")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="PhysicsObjects/BlueBox"]
 shape = SubResource("BoxShape3D_blue")
@@ -176,7 +191,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-text = "Welcome to the tutorial level! The box has a red face that changes, a green left face, and a yellow right face."
+text = "Welcome to the tutorial level! The box has a green left face, a yellow right face, and a purple back face. Press SPACEBAR to reveal a secret face."
 horizontal_alignment = 1
 vertical_alignment = 1
 autowrap_mode = 2

@@ -1,0 +1,5 @@
+res://scenes/main.tscn
+res://scenes/level_1.tscn
+res://scenes/level_2.tscn
+res://scenes/tutorial_level.tscn
+res://scripts/tutorial_level.gd

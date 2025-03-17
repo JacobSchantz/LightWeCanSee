@@ -4,33 +4,17 @@ extends "res://scripts/base_level.gd"
 @onready var tutorial_ui = $TutorialUI
 @onready var instruction_label = $TutorialUI/InstructionPanel/InstructionLabel
 @onready var progress_label = $TutorialUI/ProgressLabel
-@onready var door = $Door
 @onready var blue_box = $PhysicsObjects/BlueBox
 @onready var red_face = $PhysicsObjects/BlueBox/RedFace
 @onready var green_face = $PhysicsObjects/BlueBox/GreenFace
 @onready var yellow_face = $PhysicsObjects/BlueBox/YellowFace
+@onready var purple_face = $PhysicsObjects/BlueBox/PurpleFace
 
-# Face rotation
-var face_timer = 0.0
-var current_face = 0
-const FACE_CHANGE_INTERVAL = 2.0  # Change face every 2 seconds
-const FACE_OFFSET = 0.76      # Offset for all faces
+# Face offset
+const FACE_OFFSET = 0.76  # Offset for all faces
 
-# Face positions for red face (excluding left and right)
-const RED_FACE_POSITIONS = [
-	Vector3(0, 0, FACE_OFFSET),    # Front
-	Vector3(0, 0, -FACE_OFFSET),   # Back
-	Vector3(0, FACE_OFFSET, 0),    # Top
-	Vector3(0, -FACE_OFFSET, 0)    # Bottom
-]
-
-# Face rotations for red face
-const RED_FACE_ROTATIONS = [
-	Vector3(0, 0, 0),       # Front (no rotation)
-	Vector3(0, PI, 0),      # Back (rotate 180 degrees around Y)
-	Vector3(PI/2, 0, 0),    # Top (rotate 90 degrees around X)
-	Vector3(-PI/2, 0, 0)    # Bottom (rotate -90 degrees around X)
-]
+# Spacebar toggle
+var red_face_visible = false
 
 func _ready():
 	super._ready()
@@ -40,38 +24,43 @@ func _ready():
 	level_description = "Tutorial Level"
 	
 	# Initialize UI
-	update_instruction("Welcome to the tutorial level! The box has a red face that changes, a green left face, and a yellow right face.")
+	update_instruction("Welcome to the tutorial level! The box has a green left face, a yellow right face, and a purple back face. Press SPACEBAR to reveal a secret face.")
 	update_progress("Tutorial Level")
 	
-	# Unlock the door
-	if door:
-		door.unlock()
 	
-	# Initialize faces - green on left, yellow on right
+	# Initialize faces - green on left, yellow on right, purple on back
 	green_face.visible = true
 	yellow_face.visible = true
+	purple_face.visible = true
 	
-	# Set initial face positions
-	red_face.position = RED_FACE_POSITIONS[0]
-	red_face.rotation = RED_FACE_ROTATIONS[0]
+	# Initialize red face to be hidden
+	red_face.visible = false
+	red_face_visible = false
+	
+	# Set face positions
+	red_face.position = Vector3(0, 0, FACE_OFFSET)  # Front position
 	green_face.position = Vector3(-FACE_OFFSET, 0, 0)
 	yellow_face.position = Vector3(FACE_OFFSET, 0, 0)
+	purple_face.position = Vector3(0, 0, -FACE_OFFSET)
 
 func _process(delta):
-	# Update red face position based on timer
-	if red_face:
-		face_timer += delta
-		if face_timer >= FACE_CHANGE_INTERVAL:
-			face_timer = 0.0
-			change_red_face()
+	# Check for spacebar input in process
+	if Input.is_action_just_pressed("ui_accept"):
+		blue_box.visible = false  # Make the blue box disappear
+		await get_tree().create_timer(1.0).timeout # Wait 1 second
+		blue_box.visible = true   # Make the blue box reappear
+		toggle_red_face()
 
-func change_red_face():
-	# Move the red face to the next position (excluding left and right)
-	current_face = (current_face + 1) % RED_FACE_POSITIONS.size()
+func toggle_red_face():
+	# Toggle red face visibility
+	red_face_visible = !red_face_visible
+	red_face.visible = red_face_visible
 	
-	# Update position and rotation for the red face
-	red_face.position = RED_FACE_POSITIONS[current_face]
-	red_face.rotation = RED_FACE_ROTATIONS[current_face]
+	# Update instruction based on visibility
+	if red_face_visible:
+		update_instruction("You found the secret red face! Press SPACEBAR again to hide it.")
+	else:
+		update_instruction("The box has a green left face, a yellow right face, and a purple back face. Press SPACEBAR to reveal a secret face.")
 
 func update_instruction(text):
 	if instruction_label:
