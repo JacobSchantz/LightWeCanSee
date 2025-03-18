@@ -1,6 +1,6 @@
 [gd_scene load_steps=4 format=3 uid="uid://do8adcxv6e3hl"]
 
-[ext_resource type="Script" path="res://scripts/force_meter_3d.gd" id="1_i3o84"]
+[ext_resource type="Script" uid="uid://ddojp3vb07djk" path="res://scripts/force_meter_3d.gd" id="1_i3o84"]
 
 [sub_resource type="BoxMesh" id="BoxMesh_fxynj"]
 size = Vector3(1, 0.1, 0.1)

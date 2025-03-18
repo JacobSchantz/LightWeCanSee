@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://bw7hdh5yqcqd4"]
 
-[ext_resource type="Script" path="res://scripts/pause_menu.gd" id="1_qljn7"]
+[ext_resource type="Script" uid="uid://cjjam65krr8nh" path="res://scripts/pause_menu.gd" id="1_qljn7"]
 
 [node name="PauseMenu" type="Control"]
 process_mode = 3
@@ -57,7 +57,3 @@ text = "Restart Level"
 layout_mode = 2
 theme_override_font_sizes/font_size = 22
 text = "Main Menu"
-
-
-
-

@@ -1,6 +1,6 @@
 [gd_scene load_steps=12 format=3 uid="uid://cybgwi7xo8owy"]
 
-[ext_resource type="Script" path="res://scripts/level_2.gd" id="1_57wln"]
+[ext_resource type="Script" uid="uid://te0m38pj6xop" path="res://scripts/level_2.gd" id="1_57wln"]
 [ext_resource type="PackedScene" uid="uid://c34abxc4q2lp0" path="res://scenes/door.tscn" id="2_2vv76"]
 
 [sub_resource type="BoxMesh" id="BoxMesh_u7i66"]

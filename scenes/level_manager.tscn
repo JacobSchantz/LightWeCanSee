@@ -1,6 +1,6 @@
 [gd_scene load_steps=7 format=3 uid="uid://c0c2ld8o4i31y"]
 
-[ext_resource type="Script" path="res://scripts/level_manager.gd" id="1_bxjka"]
+[ext_resource type="Script" uid="uid://qy3pwdgxrysu" path="res://scripts/level_manager.gd" id="1_bxjka"]
 [ext_resource type="PackedScene" uid="uid://dccutkhjc0ydt" path="res://scenes/player.tscn" id="2_6q5aq"]
 [ext_resource type="PackedScene" uid="uid://bw7hdh5yqcqd4" path="res://scenes/pause_menu.tscn" id="3_xp0yy"]
 
@@ -38,8 +38,8 @@ tracks/0/keys = {
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_n0knj"]
 _data = {
-"fade_in": SubResource("Animation_fkun7"),
-"fade_out": SubResource("Animation_qdvim")
+&"fade_in": SubResource("Animation_fkun7"),
+&"fade_out": SubResource("Animation_qdvim")
 }
 
 [node name="LevelManager" type="Node3D"]
@@ -67,6 +67,7 @@ color = Color(0, 0, 0, 0)
 libraries = {
 "": SubResource("AnimationLibrary_n0knj")
 }
+
 [node name="PauseMenu" parent="." instance=ExtResource("3_xp0yy")]
 visible = false
 process_mode = 3
