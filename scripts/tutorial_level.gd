@@ -13,8 +13,9 @@ extends "res://scripts/base_level.gd"
 # Face offset
 const FACE_OFFSET = 0.76  # Offset for all faces
 
-# Spacebar toggle
+# Simple toggle for red face
 var red_face_visible = false
+var interaction_area = null
 
 func _ready():
 	super._ready()
@@ -24,43 +25,56 @@ func _ready():
 	level_description = "Tutorial Level"
 	
 	# Initialize UI
-	update_instruction("Welcome to the tutorial level! The box has a green left face, a yellow right face, and a purple back face. Press SPACEBAR to reveal a secret face.")
+	update_instruction("Welcome to the tutorial level! Walk near the box and press E to reveal the secret red face.")
 	update_progress("Tutorial Level")
 	
-	
-	# Initialize faces - green on left, yellow on right, purple on back
+	# Make all side faces visible
 	green_face.visible = true
 	yellow_face.visible = true
 	purple_face.visible = true
 	
 	# Initialize red face to be hidden
 	red_face.visible = false
-	red_face_visible = false
 	
 	# Set face positions
 	red_face.position = Vector3(0, 0, FACE_OFFSET)  # Front position
-	green_face.position = Vector3(-FACE_OFFSET, 0, 0)
-	yellow_face.position = Vector3(FACE_OFFSET, 0, 0)
-	purple_face.position = Vector3(0, 0, -FACE_OFFSET)
+	green_face.position = Vector3(-FACE_OFFSET, 0, 0)  # Left position
+	yellow_face.position = Vector3(FACE_OFFSET, 0, 0)  # Right position
+	purple_face.position = Vector3(0, 0, -FACE_OFFSET)  # Back position
+	
+	# Create simple interaction area
+	create_interaction_area()
 
-func _process(delta):
-	# Check for spacebar input in process
-	if Input.is_action_just_pressed("ui_accept"):
-		blue_box.visible = false  # Make the blue box disappear
-		await get_tree().create_timer(1.0).timeout # Wait 1 second
-		blue_box.visible = true   # Make the blue box reappear
-		toggle_red_face()
+func create_interaction_area():
+	# Create a large Area3D around the box
+	interaction_area = Area3D.new()
+	interaction_area.name = "BoxInteractionArea"
+	interaction_area.collision_layer = 2  # Set to interactable layer
+	interaction_area.collision_mask = 1   # Detect player
+	add_child(interaction_area)
+	
+	# Create and set up collision shape for the area
+	var shape = CollisionShape3D.new()
+	var box_shape = BoxShape3D.new()
+	box_shape.size = Vector3(3.5, 3.5, 3.5)  # Large enough to be detected from ~1 cube away
+	shape.shape = box_shape
+	interaction_area.add_child(shape)
+	
+	# Center it on the box
+	interaction_area.global_position = blue_box.global_position
+	
+	# Add interact method to the area
+	interaction_area.set_script(preload("res://scripts/box_interaction.gd"))
 
+# Method to toggle the red face when player presses E
 func toggle_red_face():
-	# Toggle red face visibility
 	red_face_visible = !red_face_visible
 	red_face.visible = red_face_visible
 	
-	# Update instruction based on visibility
 	if red_face_visible:
-		update_instruction("You found the secret red face! Press SPACEBAR again to hide it.")
+		update_instruction("You found the secret red face! Press E again to hide it.")
 	else:
-		update_instruction("The box has a green left face, a yellow right face, and a purple back face. Press SPACEBAR to reveal a secret face.")
+		update_instruction("Walk near the box and press E to reveal the secret red face.")
 
 func update_instruction(text):
 	if instruction_label:
