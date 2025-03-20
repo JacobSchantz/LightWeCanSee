@@ -1,7 +1,7 @@
 extends Node3D
 
 # Pause menu reference
-@onready var pause_menu = $CanvasLayer/PauseMenu
+var pause_menu = null
 var is_paused = false
 
 # Level manager variables
@@ -17,6 +17,9 @@ signal level_completed
 
 func _ready():
 	print("Light We Can See - Game Started")
+	
+	# Find the pause menu - could be in CanvasLayer or directly in the scene
+	pause_menu = find_pause_menu()
 	
 	# Make sure the pause menu is hidden when game starts
 	if pause_menu:
@@ -137,3 +140,16 @@ func complete_level():
 	
 	# Emit the level completed signal
 	emit_signal("level_completed")
+
+# Helper function to find the pause menu in different scene structures
+func find_pause_menu():
+	# Try direct child first
+	if has_node("PauseMenu"):
+		return get_node("PauseMenu")
+	
+	# Try in CanvasLayer
+	if has_node("CanvasLayer/PauseMenu"):
+		return get_node("CanvasLayer/PauseMenu")
+	
+	# Try using find_child as a last resort
+	return find_child("PauseMenu", true, false)

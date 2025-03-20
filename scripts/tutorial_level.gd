@@ -44,7 +44,7 @@ func _ready():
 	player_node = get_tree().get_nodes_in_group("player")[0]
 	
 	# Set up pause handling
-	var level_pause_menu = find_child("PauseMenu", true, false)
+	var level_pause_menu = $PauseMenu
 	if level_pause_menu:
 		level_pause_menu.visible = false
 
@@ -79,7 +79,7 @@ func _process(delta):
 
 # Toggle pause state
 func toggle_pause():
-	var level_pause_menu = find_child("PauseMenu", true, false)
+	var level_pause_menu = $PauseMenu
 	if level_pause_menu:
 		var level_paused = !get_tree().paused
 		get_tree().paused = level_paused
