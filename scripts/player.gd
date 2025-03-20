@@ -19,11 +19,10 @@ var max_pitch = 70.0
 @onready var interaction_ray = $InteractionRay
 
 # Box extension variables
-var is_box_extended = false
 var target_box = null
-
-# Get the gravity from the project settings to be synced with RigidBody nodes
-var gravity = ProjectSettings.get_setting("physics/3d/default_gravity")
+var is_box_extended = false
+var box_tween = null
+var animation_duration = 0.3  # Animation duration in seconds
 
 func _ready():
 	# Add player to the player group for interactions
@@ -47,7 +46,7 @@ func _physics_process(delta):
 	
 	# Add the gravity
 	if not is_on_floor():
-		velocity.y -= gravity * delta
+		velocity.y -= ProjectSettings.get_setting("physics/3d/default_gravity") * delta
 
 	# Handle Jump
 	if Input.is_action_just_pressed("ui_accept") and is_on_floor():
@@ -114,15 +113,26 @@ func toggle_box_size():
 	if boxes.size() > 0:
 		target_box = boxes[0]  # Just take the first box for simplicity
 		
+		# Cancel any existing tween
+		if box_tween and box_tween.is_valid():
+			box_tween.kill()
+		
+		# Create a new tween
+		box_tween = create_tween()
+		box_tween.set_ease(Tween.EASE_OUT)
+		box_tween.set_trans(Tween.TRANS_CUBIC)
+		
 		# Toggle the box scale
 		if not is_box_extended:
-			# Double the size
-			target_box.scale = Vector3(2.0, 2.0, 2.0)
+			# Animate to extended size and position
+			box_tween.tween_property(target_box, "scale", Vector3(2.0, 1.0, 1.0), animation_duration)
+			box_tween.parallel().tween_property(target_box, "position:x", target_box.position.x + 0.75, animation_duration)
 			is_box_extended = true
 			print("Box size doubled")
 		else:
-			# Restore original size
-			target_box.scale = Vector3(1.0, 1.0, 1.0)
+			# Animate back to original size and position
+			box_tween.tween_property(target_box, "scale", Vector3(1.0, 1.0, 1.0), animation_duration)
+			box_tween.parallel().tween_property(target_box, "position:x", target_box.position.x - 0.75, animation_duration)
 			is_box_extended = false
 			print("Box size restored")
 

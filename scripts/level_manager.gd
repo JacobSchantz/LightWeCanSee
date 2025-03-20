@@ -9,10 +9,8 @@ var levels = []
 func _ready():
 	# Register the levels
 	levels = [
-		preload("res://scenes/tutorial_level.tscn"),
-		preload("res://scenes/level_1.tscn"),
-		preload("res://scenes/level_2.tscn"),
-		preload("res://scenes/force_demo.tscn")
+		preload("res://scenes/tutorial_level.tscn")
+		# Removed references to deleted scenes
 	]
 	
 	load_level(current_level)
