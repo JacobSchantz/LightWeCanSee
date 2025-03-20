@@ -32,12 +32,15 @@ func _ready():
 	# Add this level to the "level" group for face areas to find it
 	add_to_group("level")
 	
+	# Add the blue box to the extendable_box group
+	blue_box.add_to_group("extendable_box")
+	
 	# Set level properties
 	level_name = "Tutorial"
 	level_description = "Tutorial Level"
 	
 	# Initialize UI
-	update_instruction("Welcome to the tutorial level! Move around the box - the closest face will light up.")
+	update_instruction("Welcome to the tutorial level! Move around the box - the closest face will light up. Press G to toggle box size.")
 	update_progress("Tutorial Level")
 	
 	# Initialize faces array with face nodes and their directions
@@ -98,7 +101,7 @@ func _process(_delta):
 		# Make the closest face visible if within detection radius
 		if closest_face_index >= 0 and closest_distance < detection_radius:
 			faces[closest_face_index].node.visible = true
-			
+            
 			# Debug output
 			print("Closest face: " + faces[closest_face_index].name + " - Distance: " + str(closest_distance))
 
@@ -120,9 +123,6 @@ func create_face_interaction_areas():
 	# Center it on the box
 	interaction_area.global_position = blue_box.global_position
 	
-	# Add interact method to the area
-	interaction_area.set_script(preload("res://scripts/box_interaction.gd"))
-	
 	# Create individual face areas for more precise interaction
 	for i in range(faces.size()):
 		var face_data = faces[i]
@@ -140,19 +140,19 @@ func create_face_interaction_areas():
 		# Position the face area
 		var face_position = blue_box.global_position + face_data.direction * 0.8
 		face_area.global_position = face_position
-		
+        
 		# Rotate the face area to match the face orientation
 		if face_data.direction.x != 0:
 			face_area.rotation_degrees.y = 90 if face_data.direction.x > 0 else -90
 		elif face_data.direction.z < 0:
 			face_area.rotation_degrees.y = 180
-		
+        
 		# Add to face areas array
 		face_areas.append(face_area)
-		
+        
 		# Store face index as metadata
 		face_area.set_meta("face_index", i)
-		
+        
 		# Add script to the face area
 		face_area.set_script(preload("res://scripts/face_area.gd"))
 
@@ -161,7 +161,7 @@ func toggle_face_visibility(face_index):
 	if face_index >= 0 and face_index < faces.size():
 		var face_data = faces[face_index]
 		face_data.node.visible = !face_data.node.visible
-		
+        
 		if face_data.node.visible:
 			update_instruction("You toggled the " + face_data.name + " to visible! Look at any face and press E to toggle it.")
 		else:

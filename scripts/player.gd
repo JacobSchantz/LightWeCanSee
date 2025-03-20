@@ -18,6 +18,10 @@ var max_pitch = 70.0
 @onready var camera = $CameraPivot/Camera3D
 @onready var interaction_ray = $InteractionRay
 
+# Box extension variables
+var is_box_extended = false
+var target_box = null
+
 # Get the gravity from the project settings to be synced with RigidBody nodes
 var gravity = ProjectSettings.get_setting("physics/3d/default_gravity")
 
@@ -84,6 +88,10 @@ func _physics_process(delta):
 			var collider = interaction_ray.get_collider()
 			if collider.has_method("interact"):
 				collider.interact()
+	
+	# Check for box extension
+	if Input.is_action_just_pressed("extend_box"):
+		toggle_box_size()
 
 func _input(event):
 	if event is InputEventMouseMotion:
@@ -98,6 +106,25 @@ func _input(event):
 			pivot.rotation.x = camera_angle
 	
 	# NOTE: Escape key handling is now done in the main script to properly show the pause menu
+
+# Simple function to toggle box size
+func toggle_box_size():
+	# Find the box
+	var boxes = get_tree().get_nodes_in_group("extendable_box")
+	if boxes.size() > 0:
+		target_box = boxes[0]  # Just take the first box for simplicity
+		
+		# Toggle the box scale
+		if not is_box_extended:
+			# Double the size
+			target_box.scale = Vector3(2.0, 2.0, 2.0)
+			is_box_extended = true
+			print("Box size doubled")
+		else:
+			# Restore original size
+			target_box.scale = Vector3(1.0, 1.0, 1.0)
+			is_box_extended = false
+			print("Box size restored")
 
 # Handles restarting the level when the player falls off the world
 func restart_level():
