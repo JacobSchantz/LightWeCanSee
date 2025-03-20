@@ -78,10 +78,6 @@ func _physics_process(delta):
 
 	move_and_slide()
 	
-	# Check for interaction
-	if Input.is_action_just_pressed("interact"):
-		handle_interaction()
-	
 	# Check for box extension
 	if Input.is_action_just_pressed("extend_box"):
 		toggle_box_size()
@@ -99,24 +95,6 @@ func _input(event):
 			pivot.rotation.x = camera_angle
 	
 	# NOTE: Escape key handling is now done in the main script to properly show the pause menu
-
-# Handle interaction with objects
-func handle_interaction():
-	if interaction_ray.is_colliding():
-		var collider = interaction_ray.get_collider()
-		
-		# Check if it's a face area
-		if collider is Area3D and collider.get_script() and collider.get_script().resource_path.ends_with("face_area.gd"):
-			# Get the face index stored as metadata
-			if collider.has_meta("face_index"):
-				var face_index = collider.get_meta("face_index")
-				
-				# Get the parent level script
-				var level = get_tree().get_nodes_in_group("level")[0]
-				
-				# Call the handle_face_interaction method
-				if level.has_method("handle_face_interaction"):
-					level.handle_face_interaction(face_index)
 
 # Simple function to toggle box size
 func toggle_box_size():

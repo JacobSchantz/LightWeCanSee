@@ -1,5 +1,2 @@
 res://scenes/main_menu.tscn
-res://scenes/tutorial_level.tscn
-res://scripts/face_area.gd
 res://scripts/player.gd
-res://scripts/tutorial_level.gd
