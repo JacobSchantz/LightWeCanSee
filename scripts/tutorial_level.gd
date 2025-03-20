@@ -101,7 +101,7 @@ func _process(_delta):
 		# Make the closest face visible if within detection radius
 		if closest_face_index >= 0 and closest_distance < detection_radius:
 			faces[closest_face_index].node.visible = true
-            
+			
 			# Debug output
 			print("Closest face: " + faces[closest_face_index].name + " - Distance: " + str(closest_distance))
 
@@ -140,21 +140,18 @@ func create_face_interaction_areas():
 		# Position the face area
 		var face_position = blue_box.global_position + face_data.direction * 0.8
 		face_area.global_position = face_position
-        
+		
 		# Rotate the face area to match the face orientation
 		if face_data.direction.x != 0:
 			face_area.rotation_degrees.y = 90 if face_data.direction.x > 0 else -90
 		elif face_data.direction.z < 0:
 			face_area.rotation_degrees.y = 180
-        
+		
 		# Add to face areas array
 		face_areas.append(face_area)
-        
+		
 		# Store face index as metadata
 		face_area.set_meta("face_index", i)
-        
-		# Add script to the face area
-		face_area.set_script(preload("res://scripts/face_area.gd"))
 
 func handle_face_interaction(face_index):
 	# This function is called by the face_area script when a face is interacted with
