@@ -1,14 +1,19 @@
-extends Node2D
+extends Node3D
 
 # Pause menu reference
-@onready var pause_menu = $PauseMenu
+@onready var pause_menu = $CanvasLayer/PauseMenu
 var is_paused = false
 
 # Level manager variables
 var current_level = 0
 var levels = []
-@onready var transition_animation = $TransitionAnimation if has_node("TransitionAnimation") else null
+@onready var transition_animation = $CanvasLayer/TransitionAnimation if has_node("CanvasLayer/TransitionAnimation") else null
 @onready var level_container = $LevelContainer if has_node("LevelContainer") else null
+
+# Base level properties
+signal level_completed
+@export var level_name: String = "Base Level"
+@export var level_description: String = "This is a base level"
 
 func _ready():
 	print("Light We Can See - Game Started")
@@ -20,14 +25,11 @@ func _ready():
 		# Connect pause menu button signals
 		var resume_button = pause_menu.get_node("CenterContainer/VBoxContainer/ResumeButton")
 		var restart_button = pause_menu.get_node("CenterContainer/VBoxContainer/RestartButton")
-		var quit_button = pause_menu.get_node("CenterContainer/VBoxContainer/QuitButton")
 		
 		if resume_button:
 			resume_button.pressed.connect(_on_resume_button_pressed)
 		if restart_button:
 			restart_button.pressed.connect(_on_restart_button_pressed)
-		if quit_button:
-			quit_button.pressed.connect(_on_quit_button_pressed)
 	
 	# Initialize level management if we have a level container
 	if level_container:
@@ -38,21 +40,17 @@ func _ready():
 		]
 		
 		load_level(current_level)
+		
+	# Base level setup - lock door if present
+	var door = find_child("Door", true, false)
+	if door:
+		door.lock() # Lock the door by default
 
 func _process(delta):
 	# Handle pause toggle with ESC key
 	if Input.is_action_just_pressed("ui_cancel"):
 		toggle_pause()
 
-# Process input for level switching debug keys
-func _input(event):
-	# Level switching debug keys (only if level_container exists)
-	if level_container and event is InputEventKey and event.pressed:
-		if event.keycode == KEY_F1:
-			load_level(0)  # Load level 1
-		elif event.keycode == KEY_F2:
-			load_level(1)  # Load level 2
-		
 # ---- PAUSE MENU FUNCTIONS ----
 		
 func toggle_pause():
@@ -81,10 +79,6 @@ func _on_restart_button_pressed():
 	
 	# Get the current scene and reload it
 	get_tree().reload_current_scene()
-
-# Handle quit button
-func _on_quit_button_pressed():
-	get_tree().quit()
 
 # ---- LEVEL MANAGER FUNCTIONS ----
 
@@ -130,3 +124,16 @@ func _on_level_completed():
 		
 	if transition_animation:
 		transition_animation.play("fade_in")
+
+# ---- BASE LEVEL FUNCTIONS ----
+
+# Method to complete the level
+func complete_level():
+	var door = find_child("Door", true, false)
+	if door:
+		door.unlock()
+		# Play door opening animation or sound if available
+		await get_tree().create_timer(2.0).timeout
+	
+	# Emit the level completed signal
+	emit_signal("level_completed")

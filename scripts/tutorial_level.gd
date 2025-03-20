@@ -1,4 +1,4 @@
-extends "res://scripts/base_level.gd"
+extends "res://scripts/main.gd"
 
 # UI elements
 @onready var tutorial_ui = $TutorialUI
@@ -23,7 +23,7 @@ var faces = []
 
 # Proximity detection
 var proximity_areas = []
-var player = null
+var player_node = null
 var detection_radius = 2.0  # Detection radius for all faces
 
 func _ready():
@@ -41,12 +41,12 @@ func _ready():
 	
 	# Find the player
 	await get_tree().process_frame
-	player = get_tree().get_nodes_in_group("player")[0]
+	player_node = get_tree().get_nodes_in_group("player")[0]
 	
 	# Set up pause handling
-	var pause_menu = find_child("PauseMenu", true, false)
-	if pause_menu:
-		pause_menu.visible = false
+	var level_pause_menu = find_child("PauseMenu", true, false)
+	if level_pause_menu:
+		level_pause_menu.visible = false
 
 # Update the instruction text
 func update_instruction(text):
@@ -71,7 +71,7 @@ func handle_face_interaction(face_index):
 		3: # Purple face
 			update_instruction("You've interacted with the Purple Face!")
 
-# Process function for handling pause
+# Process function for handling pause - overrides the main.gd _process
 func _process(delta):
 	# Handle pause toggle with ESC key
 	if Input.is_action_just_pressed("ui_cancel"):
@@ -79,22 +79,22 @@ func _process(delta):
 
 # Toggle pause state
 func toggle_pause():
-	var pause_menu = find_child("PauseMenu", true, false)
-	if pause_menu:
-		var is_paused = !get_tree().paused
-		get_tree().paused = is_paused
-		pause_menu.visible = is_paused
+	var level_pause_menu = find_child("PauseMenu", true, false)
+	if level_pause_menu:
+		var level_paused = !get_tree().paused
+		get_tree().paused = level_paused
+		level_pause_menu.visible = level_paused
 		
 		# Toggle mouse mode based on pause state
-		if is_paused:
+		if level_paused:
 			Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 		else:
 			Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 
 # Handle player falling out of bounds
 func player_fell_out_of_bounds():
-	if player:
-		player.restart_level()
+	if player_node:
+		player_node.restart_level()
 
 # Optional respawn effect
 func play_respawn_effect():
