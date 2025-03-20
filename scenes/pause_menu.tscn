@@ -53,7 +53,7 @@ layout_mode = 2
 theme_override_font_sizes/font_size = 22
 text = "Restart Level"
 
-[node name="MainMenuButton" type="Button" parent="CenterContainer/VBoxContainer"]
+[node name="QuitButton" type="Button" parent="CenterContainer/VBoxContainer"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 22
-text = "Main Menu"
+text = "Quit Game"

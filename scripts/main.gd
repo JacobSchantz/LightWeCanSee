@@ -43,15 +43,6 @@ func _on_restart_button_pressed():
 	# Get the current scene and reload it
 	get_tree().reload_current_scene()
 
-# Handle main menu button
-func _on_main_menu_button_pressed():
-	# Unpause before changing scenes
-	get_tree().paused = false
-	
-	# Switch back to main menu scene
-	# Note: Adjust the actual main menu scene path as needed
-	get_tree().change_scene_to_file("res://scenes/main_menu.tscn")
-
 # Handle quit button
 func _on_quit_button_pressed():
 	get_tree().quit()
