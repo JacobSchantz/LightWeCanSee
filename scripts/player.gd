@@ -1,7 +1,7 @@
 extends CharacterBody3D
 
 const SPEED = 5.0
-const JUMP_VELOCITY = 4.5
+const JUMP_VELOCITY = 6.5  # Increased from 4.5 to allow jumping onto boxes
 const ROTATION_SPEED = 5.0
 
 # Fall detection

@@ -31,7 +31,6 @@ var expansion_count = {
 	"z_pos": 0,  # Front side
 	"z_neg": 0   # Back side
 }
-var max_expansions = 5  # Maximum number of expansions per side
 
 func _ready():
 	# Add this box to the extendable_box group
@@ -83,25 +82,51 @@ func _process(_delta):
 	for face_data in faces:
 		face_data.node.visible = false
 	
-	# Show the closest face if player is close enough
+	# Show the face based on player position relative to the box
 	if player:
-		var closest_face_index = -1
-		var closest_distance = 999999.0
+		# Get player position relative to box center (ignoring Y axis)
+		var rel_x = player.global_position.x - global_position.x
+		var rel_z = player.global_position.z - global_position.z
 		
-		# Update face world positions (in case box moved or scaled)
-		update_face_world_positions()
+		# Scale the relative position based on box scale to account for expansion
+		rel_x /= scale.x
+		rel_z /= scale.z
 		
-		# Find the closest face
-		for i in range(faces.size()):
-			var distance = player.global_position.distance_to(faces[i].world_pos)
+		# Check if player is close enough to the box
+		var distance = Vector2(rel_x, rel_z).length()
+		if distance < detection_radius * 2:  # Increased radius for better detection
+			# Determine which face to show based on which side of the diagonal the player is on
+			var visible_face = null
 			
-			if distance < closest_distance:
-				closest_distance = distance
-				closest_face_index = i
-		
-		# Make the closest face visible if within detection radius
-		if closest_face_index >= 0 and closest_distance < detection_radius:
-			faces[closest_face_index].node.visible = true
+			# Add a small epsilon to prevent ambiguity at exact corners
+			var epsilon = 0.001
+			
+			# Handle exact corner cases
+			if abs(abs(rel_x) - abs(rel_z)) < epsilon:
+				# Player is very close to a diagonal line
+				# Choose based on which quadrant they're in
+				if rel_x > 0 and rel_z > 0:
+					visible_face = red_face  # Front-right corner, default to front
+				elif rel_x < 0 and rel_z > 0:
+					visible_face = red_face  # Front-left corner, default to front
+				elif rel_x > 0 and rel_z < 0:
+					visible_face = yellow_face  # Back-right corner, default to right
+				else:
+					visible_face = purple_face  # Back-left corner, default to back
+			else:
+				# Normal diagonal line check
+				if rel_x > rel_z and rel_x > -rel_z:
+					visible_face = yellow_face  # Right face (positive X)
+				elif rel_x < rel_z and rel_x < -rel_z:
+					visible_face = green_face   # Left face (negative X)
+				elif rel_z > rel_x and rel_z > -rel_x:
+					visible_face = red_face     # Front face (positive Z)
+				else:
+					visible_face = purple_face  # Back face (negative Z)
+			
+			# Make the selected face visible
+			if visible_face:
+				visible_face.visible = true
 
 func create_face_interaction_areas():
 	# Create a large Area3D around the box
@@ -200,11 +225,6 @@ func toggle_size():
 		side_key = "z_pos"  # Front side
 	elif extension_direction.z < 0:
 		side_key = "z_neg"  # Back side
-	
-	# Check if we've reached the maximum number of expansions for this side
-	if expansion_count[side_key] >= max_expansions:
-		print(face_name + " has reached maximum expansion")
-		return
 	
 	# Calculate the new scale and position
 	var current_scale = scale
