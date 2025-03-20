@@ -168,17 +168,55 @@ func toggle_size():
 	box_tween.set_ease(Tween.EASE_OUT)
 	box_tween.set_trans(Tween.TRANS_CUBIC)
 	
+	# Find which face is currently visible
+	var visible_face_index = -1
+	for i in range(faces.size()):
+		if faces[i].node.visible:
+			visible_face_index = i
+			break
+	
+	# If no face is visible, default to extending in the X direction
+	if visible_face_index == -1:
+		visible_face_index = 2  # Default to yellow face (right side)
+	
+	# Get the direction of the visible face
+	var extension_direction = faces[visible_face_index].direction
+	var face_name = faces[visible_face_index].name
+	
 	# Toggle the box scale
 	if not is_extended:
+		# Determine which scale component to modify based on the direction
+		var target_scale = Vector3(1.0, 1.0, 1.0)
+		var position_offset = Vector3(0, 0, 0)
+		
+		if extension_direction.x != 0:
+			# X-axis extension (left or right face)
+			target_scale.x = 2.0
+			position_offset.x = extension_direction.x * 0.75
+		elif extension_direction.z != 0:
+			# Z-axis extension (front or back face)
+			target_scale.z = 2.0
+			position_offset.z = extension_direction.z * 0.75
+		
 		# Animate to extended size and position
-		box_tween.tween_property(self, "scale", Vector3(2.0, 1.0, 1.0), animation_duration)
-		box_tween.parallel().tween_property(self, "position:x", position.x + 0.75, animation_duration)
+		box_tween.tween_property(self, "scale", target_scale, animation_duration)
+		box_tween.parallel().tween_property(self, "position", position + position_offset, animation_duration)
 		is_extended = true
-		print("Box size doubled")
+		print("Box extended in direction of " + face_name)
 	else:
+		# Determine which scale component to restore based on the current scale
+		var position_offset = Vector3(0, 0, 0)
+		
+		if scale.x > scale.z:
+			# Currently extended in X direction
+			position_offset.x = -extension_direction.x * 0.75
+		else:
+			# Currently extended in Z direction
+			position_offset.z = -extension_direction.z * 0.75
+		
 		# Animate back to original size and position
 		box_tween.tween_property(self, "scale", Vector3(1.0, 1.0, 1.0), animation_duration)
-		box_tween.parallel().tween_property(self, "position:x", position.x - 0.75, animation_duration)
+		box_tween.parallel().tween_property(self, "position", position + position_offset, animation_duration)
 		is_extended = false
 		print("Box size restored")
 	
