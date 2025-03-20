@@ -25,6 +25,13 @@ var detection_radius = 2.0  # Detection radius for all faces
 var is_extended = false
 var box_tween = null
 var animation_duration = 0.3  # Animation duration in seconds
+var expansion_count = {
+	"x_pos": 0,  # Right side
+	"x_neg": 0,  # Left side
+	"z_pos": 0,  # Front side
+	"z_neg": 0   # Back side
+}
+var max_expansions = 5  # Maximum number of expansions per side
 
 func _ready():
 	# Add this box to the extendable_box group
@@ -157,7 +164,7 @@ func _on_face_area_input_event(_camera, event, _click_position, face_index):
 		if level.has_method("handle_face_interaction"):
 			level.handle_face_interaction(face_index)
 
-# Function to toggle box size with animation
+# Function to expand box size with animation
 func toggle_size():
 	# Cancel any existing tween
 	if box_tween and box_tween.is_valid():
@@ -183,42 +190,44 @@ func toggle_size():
 	var extension_direction = faces[visible_face_index].direction
 	var face_name = faces[visible_face_index].name
 	
-	# Toggle the box scale
-	if not is_extended:
-		# Determine which scale component to modify based on the direction
-		var target_scale = Vector3(1.0, 1.0, 1.0)
-		var position_offset = Vector3(0, 0, 0)
-		
-		if extension_direction.x != 0:
-			# X-axis extension (left or right face)
-			target_scale.x = 2.0
-			position_offset.x = extension_direction.x * 0.75
-		elif extension_direction.z != 0:
-			# Z-axis extension (front or back face)
-			target_scale.z = 2.0
-			position_offset.z = extension_direction.z * 0.75
-		
-		# Animate to extended size and position
-		box_tween.tween_property(self, "scale", target_scale, animation_duration)
-		box_tween.parallel().tween_property(self, "position", position + position_offset, animation_duration)
-		is_extended = true
-		print("Box extended in direction of " + face_name)
-	else:
-		# Determine which scale component to restore based on the current scale
-		var position_offset = Vector3(0, 0, 0)
-		
-		if scale.x > scale.z:
-			# Currently extended in X direction
-			position_offset.x = -extension_direction.x * 0.75
-		else:
-			# Currently extended in Z direction
-			position_offset.z = -extension_direction.z * 0.75
-		
-		# Animate back to original size and position
-		box_tween.tween_property(self, "scale", Vector3(1.0, 1.0, 1.0), animation_duration)
-		box_tween.parallel().tween_property(self, "position", position + position_offset, animation_duration)
-		is_extended = false
-		print("Box size restored")
+	# Determine which side to expand based on direction
+	var side_key = ""
+	if extension_direction.x > 0:
+		side_key = "x_pos"  # Right side
+	elif extension_direction.x < 0:
+		side_key = "x_neg"  # Left side
+	elif extension_direction.z > 0:
+		side_key = "z_pos"  # Front side
+	elif extension_direction.z < 0:
+		side_key = "z_neg"  # Back side
+	
+	# Check if we've reached the maximum number of expansions for this side
+	if expansion_count[side_key] >= max_expansions:
+		print(face_name + " has reached maximum expansion")
+		return
+	
+	# Calculate the new scale and position
+	var current_scale = scale
+	var new_scale = current_scale
+	var position_offset = Vector3(0, 0, 0)
+	
+	if side_key == "x_pos" or side_key == "x_neg":
+		# X-axis extension
+		new_scale.x += 1.0
+		position_offset.x = extension_direction.x * 0.75
+	elif side_key == "z_pos" or side_key == "z_neg":
+		# Z-axis extension
+		new_scale.z += 1.0
+		position_offset.z = extension_direction.z * 0.75
+	
+	# Animate to extended size and position
+	box_tween.tween_property(self, "scale", new_scale, animation_duration)
+	box_tween.parallel().tween_property(self, "position", position + position_offset, animation_duration)
+	
+	# Increment the expansion count for this side
+	expansion_count[side_key] += 1
+	is_extended = true
+	print("Box extended in direction of " + face_name + " (Expansion #" + str(expansion_count[side_key]) + ")")
 	
 	# Connect the tween completed signal to update face positions
 	box_tween.finished.connect(update_face_world_positions)
