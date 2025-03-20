@@ -25,8 +25,6 @@ func interact():
 	# Get the parent level script
 	var level = get_tree().get_nodes_in_group("level")[0]
 	
-	# Call the level's method to activate this face
-	if level.has_method("activate_face"):
-		level.activate_face(face_index)
-	else:
-		print("Error: Level script doesn't have activate_face method")
+	# Call the handle_face_interaction method
+	if level.has_method("handle_face_interaction"):
+		level.handle_face_interaction(face_index)

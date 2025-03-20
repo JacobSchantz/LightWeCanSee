@@ -1,14 +1,10 @@
-extends "res://scripts/base_level.gd"
+extends StaticBody3D
 
-# UI elements
-@onready var tutorial_ui = $TutorialUI
-@onready var instruction_label = $TutorialUI/InstructionPanel/InstructionLabel
-@onready var progress_label = $TutorialUI/ProgressLabel
-@onready var blue_box = $PhysicsObjects/BlueBox
-@onready var red_face = $PhysicsObjects/BlueBox/RedFace
-@onready var green_face = $PhysicsObjects/BlueBox/GreenFace
-@onready var yellow_face = $PhysicsObjects/BlueBox/YellowFace
-@onready var purple_face = $PhysicsObjects/BlueBox/PurpleFace
+# Face nodes
+@onready var red_face = $RedFace
+@onready var green_face = $GreenFace
+@onready var yellow_face = $YellowFace
+@onready var purple_face = $PurpleFace
 
 # Face offset
 const FACE_OFFSET = 0.76  # Offset for all faces
@@ -22,26 +18,17 @@ var face_areas = []
 var faces = []
 
 # Proximity detection
-var proximity_areas = []
 var player = null
 var detection_radius = 2.0  # Detection radius for all faces
 
+# Box extension variables
+var is_extended = false
+var box_tween = null
+var animation_duration = 0.3  # Animation duration in seconds
+
 func _ready():
-	super._ready()
-	
-	# Add this level to the "level" group for face areas to find it
-	add_to_group("level")
-	
-	# Add the blue box to the extendable_box group
-	blue_box.add_to_group("extendable_box")
-	
-	# Set level properties
-	level_name = "Tutorial"
-	level_description = "Tutorial Level"
-	
-	# Initialize UI
-	update_instruction("Welcome to the tutorial level! Move around the box - the closest face will light up. Press G to toggle box size.")
-	update_progress("Tutorial Level")
+	# Add this box to the extendable_box group
+	add_to_group("extendable_box")
 	
 	# Initialize faces array with face nodes and their directions
 	faces = [
@@ -62,14 +49,18 @@ func _ready():
 	purple_face.position = Vector3(0, 0, -FACE_OFFSET)  # Back position
 	
 	# Calculate world positions for each face
-	for i in range(faces.size()):
-		faces[i].world_pos = blue_box.global_position + faces[i].direction * FACE_OFFSET
+	update_face_world_positions()
 	
 	# Create interaction areas for each face
 	create_face_interaction_areas()
 	
 	# Find player reference (deferred to ensure scene is ready)
 	call_deferred("find_player")
+
+func update_face_world_positions():
+	# Update the world positions of all faces
+	for i in range(faces.size()):
+		faces[i].world_pos = global_position + faces[i].direction * FACE_OFFSET * scale
 
 func find_player():
 	# Wait a frame to ensure the player is fully initialized
@@ -90,6 +81,9 @@ func _process(_delta):
 		var closest_face_index = -1
 		var closest_distance = 999999.0
 		
+		# Update face world positions (in case box moved or scaled)
+		update_face_world_positions()
+		
 		# Find the closest face
 		for i in range(faces.size()):
 			var distance = player.global_position.distance_to(faces[i].world_pos)
@@ -101,9 +95,6 @@ func _process(_delta):
 		# Make the closest face visible if within detection radius
 		if closest_face_index >= 0 and closest_distance < detection_radius:
 			faces[closest_face_index].node.visible = true
-            
-			# Debug output
-			print("Closest face: " + faces[closest_face_index].name + " - Distance: " + str(closest_distance))
 
 func create_face_interaction_areas():
 	# Create a large Area3D around the box
@@ -121,7 +112,7 @@ func create_face_interaction_areas():
 	interaction_area.add_child(shape)
 	
 	# Center it on the box
-	interaction_area.global_position = blue_box.global_position
+	interaction_area.global_position = global_position
 	
 	# Create individual face areas for more precise interaction
 	for i in range(faces.size()):
@@ -138,7 +129,7 @@ func create_face_interaction_areas():
 		face_area.add_child(face_shape)
 		
 		# Position the face area
-		var face_position = blue_box.global_position + face_data.direction * 0.8
+		var face_position = global_position + face_data.direction * 0.8
 		face_area.global_position = face_position
         
 		# Rotate the face area to match the face orientation
@@ -149,33 +140,35 @@ func create_face_interaction_areas():
         
 		# Add to face areas array
 		face_areas.append(face_area)
-        
-		# Store face index as metadata
+		
+		# Set up the face area with the script
+		face_area.set_script(load("res://scripts/face_area.gd"))
 		face_area.set_meta("face_index", i)
-        
-		# Add script to the face area
-		face_area.set_script(preload("res://scripts/face_area.gd"))
 
-func handle_face_interaction(face_index):
-	# This function is called by the face_area script when a face is interacted with
-	match face_index:
-		0: # Red face
-			update_instruction("You've interacted with the Red Face!")
-		1: # Green face
-			update_instruction("You've interacted with the Green Face!")
-		2: # Yellow face
-			update_instruction("You've interacted with the Yellow Face!")
-		3: # Purple face
-			update_instruction("You've interacted with the Purple Face!")
-
-func update_instruction(text):
-	if instruction_label:
-		instruction_label.text = text
-
-func update_progress(text):
-	if progress_label:
-		progress_label.text = text
-
-func complete_level():
-	# Override the base level's complete_level function
-	get_tree().call_group("level_manager", "load_next_level")
+# Function to toggle box size with animation
+func toggle_size():
+	# Cancel any existing tween
+	if box_tween and box_tween.is_valid():
+		box_tween.kill()
+	
+	# Create a new tween
+	box_tween = create_tween()
+	box_tween.set_ease(Tween.EASE_OUT)
+	box_tween.set_trans(Tween.TRANS_CUBIC)
+	
+	# Toggle the box scale
+	if not is_extended:
+		# Animate to extended size and position
+		box_tween.tween_property(self, "scale", Vector3(2.0, 1.0, 1.0), animation_duration)
+		box_tween.parallel().tween_property(self, "position:x", position.x + 0.75, animation_duration)
+		is_extended = true
+		print("Box size doubled")
+	else:
+		# Animate back to original size and position
+		box_tween.tween_property(self, "scale", Vector3(1.0, 1.0, 1.0), animation_duration)
+		box_tween.parallel().tween_property(self, "position:x", position.x - 0.75, animation_duration)
+		is_extended = false
+		print("Box size restored")
+	
+	# Connect the tween completed signal to update face positions
+	box_tween.finished.connect(update_face_world_positions)

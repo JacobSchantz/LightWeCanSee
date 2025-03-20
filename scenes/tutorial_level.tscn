@@ -1,7 +1,8 @@
-[gd_scene load_steps=18 format=3 uid="uid://cxgvg1ym7kxjb"]
+[gd_scene load_steps=19 format=3 uid="uid://cxgvg1ym7kxjb"]
 
 [ext_resource type="Script" uid="uid://d3qo4n6rujsgi" path="res://scripts/tutorial_level.gd" id="1_tnuqv"]
 [ext_resource type="PackedScene" uid="uid://c34abxc4q2lp0" path="res://scenes/door.tscn" id="2_e7fmg"]
+[ext_resource type="Script" path="res://scripts/interactive_box.gd" id="3_box"]
 
 [sub_resource type="BoxMesh" id="BoxMesh_u7i66"]
 size = Vector3(20, 0.5, 20)
@@ -131,6 +132,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -8)
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.75, 0)
 collision_layer = 2
 collision_mask = 3
+script = ExtResource("3_box")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="PhysicsObjects/BlueBox"]
 mesh = SubResource("BoxMesh_blue")

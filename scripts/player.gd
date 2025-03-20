@@ -20,9 +20,6 @@ var max_pitch = 70.0
 
 # Box extension variables
 var target_box = null
-var is_box_extended = false
-var box_tween = null
-var animation_duration = 0.3  # Animation duration in seconds
 
 func _ready():
 	# Add player to the player group for interactions
@@ -83,10 +80,7 @@ func _physics_process(delta):
 	
 	# Check for interaction
 	if Input.is_action_just_pressed("interact"):
-		if interaction_ray.is_colliding():
-			var collider = interaction_ray.get_collider()
-			if collider.has_method("interact"):
-				collider.interact()
+		handle_interaction()
 	
 	# Check for box extension
 	if Input.is_action_just_pressed("extend_box"):
@@ -106,6 +100,24 @@ func _input(event):
 	
 	# NOTE: Escape key handling is now done in the main script to properly show the pause menu
 
+# Handle interaction with objects
+func handle_interaction():
+	if interaction_ray.is_colliding():
+		var collider = interaction_ray.get_collider()
+		
+		# Check if it's a face area
+		if collider is Area3D and collider.get_script() and collider.get_script().resource_path.ends_with("face_area.gd"):
+			# Get the face index stored as metadata
+			if collider.has_meta("face_index"):
+				var face_index = collider.get_meta("face_index")
+				
+				# Get the parent level script
+				var level = get_tree().get_nodes_in_group("level")[0]
+				
+				# Call the handle_face_interaction method
+				if level.has_method("handle_face_interaction"):
+					level.handle_face_interaction(face_index)
+
 # Simple function to toggle box size
 func toggle_box_size():
 	# Find the box
@@ -113,28 +125,9 @@ func toggle_box_size():
 	if boxes.size() > 0:
 		target_box = boxes[0]  # Just take the first box for simplicity
 		
-		# Cancel any existing tween
-		if box_tween and box_tween.is_valid():
-			box_tween.kill()
-		
-		# Create a new tween
-		box_tween = create_tween()
-		box_tween.set_ease(Tween.EASE_OUT)
-		box_tween.set_trans(Tween.TRANS_CUBIC)
-		
-		# Toggle the box scale
-		if not is_box_extended:
-			# Animate to extended size and position
-			box_tween.tween_property(target_box, "scale", Vector3(2.0, 1.0, 1.0), animation_duration)
-			box_tween.parallel().tween_property(target_box, "position:x", target_box.position.x + 0.75, animation_duration)
-			is_box_extended = true
-			print("Box size doubled")
-		else:
-			# Animate back to original size and position
-			box_tween.tween_property(target_box, "scale", Vector3(1.0, 1.0, 1.0), animation_duration)
-			box_tween.parallel().tween_property(target_box, "position:x", target_box.position.x - 0.75, animation_duration)
-			is_box_extended = false
-			print("Box size restored")
+		# Call the toggle_size method on the box
+		if target_box.has_method("toggle_size"):
+			target_box.toggle_size()
 
 # Handles restarting the level when the player falls off the world
 func restart_level():
