@@ -141,9 +141,21 @@ func create_face_interaction_areas():
 		# Add to face areas array
 		face_areas.append(face_area)
 		
-		# Set up the face area with the script
-		face_area.set_script(load("res://scripts/face_area.gd"))
+		# Set up the face area to handle interactions
 		face_area.set_meta("face_index", i)
+		
+		# Connect signals for interaction
+		face_area.input_event.connect(_on_face_area_input_event.bind(i))
+
+# Handle input events on face areas
+func _on_face_area_input_event(_camera, event, _click_position, face_index):
+	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+		# Get the level script
+		var level = get_tree().get_nodes_in_group("level")[0]
+		
+		# Call the handle_face_interaction method
+		if level.has_method("handle_face_interaction"):
+			level.handle_face_interaction(face_index)
 
 # Function to toggle box size with animation
 func toggle_size():
