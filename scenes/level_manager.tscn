@@ -1,6 +1,5 @@
-[gd_scene load_steps=7 format=3 uid="uid://c0c2ld8o4i31y"]
+[gd_scene load_steps=6 format=3 uid="uid://c0c2ld8o4i31y"]
 
-[ext_resource type="Script" uid="uid://qy3pwdgxrysu" path="res://scripts/level_manager.gd" id="1_bxjka"]
 [ext_resource type="PackedScene" uid="uid://dccutkhjc0ydt" path="res://scenes/player.tscn" id="2_6q5aq"]
 [ext_resource type="PackedScene" uid="uid://bw7hdh5yqcqd4" path="res://scenes/pause_menu.tscn" id="3_xp0yy"]
 
@@ -43,7 +42,6 @@ _data = {
 }
 
 [node name="LevelManager" type="Node3D"]
-script = ExtResource("1_bxjka")
 
 [node name="LevelContainer" type="Node3D" parent="."]
 

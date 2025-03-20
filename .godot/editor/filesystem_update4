@@ -2,3 +2,4 @@ res://scenes/main_menu.tscn
 res://scripts/player.gd
 res://scenes/tutorial_level.tscn
 res://scripts/tutorial_level.gd
+res://scripts/main.gd
