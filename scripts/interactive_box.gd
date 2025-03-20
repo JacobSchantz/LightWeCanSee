@@ -88,13 +88,22 @@ func _process(_delta):
 		var rel_x = player.global_position.x - global_position.x
 		var rel_z = player.global_position.z - global_position.z
 		
-		# Scale the relative position based on box scale to account for expansion
-		rel_x /= scale.x
-		rel_z /= scale.z
-		
-		# Check if player is close enough to the box
+		# Calculate the distance from player to box center
 		var distance = Vector2(rel_x, rel_z).length()
-		if distance < detection_radius * 2:  # Increased radius for better detection
+		
+		# Calculate the box's current size (accounting for scale)
+		var box_size_x = 1.0 * scale.x  # Assuming the box is 1 unit in size originally
+		var box_size_z = 1.0 * scale.z
+		var max_box_dimension = max(box_size_x, box_size_z)
+		
+		# Only highlight faces if player is within one box size from the edge
+		var max_highlight_distance = max_box_dimension + 1.0  # One box size from the edge
+		
+		if distance < max_highlight_distance:
+			# Scale the relative position based on box scale to account for expansion
+			var scaled_rel_x = rel_x / scale.x
+			var scaled_rel_z = rel_z / scale.z
+			
 			# Determine which face to show based on which side of the diagonal the player is on
 			var visible_face = null
 			
@@ -102,24 +111,24 @@ func _process(_delta):
 			var epsilon = 0.001
 			
 			# Handle exact corner cases
-			if abs(abs(rel_x) - abs(rel_z)) < epsilon:
+			if abs(abs(scaled_rel_x) - abs(scaled_rel_z)) < epsilon:
 				# Player is very close to a diagonal line
 				# Choose based on which quadrant they're in
-				if rel_x > 0 and rel_z > 0:
+				if scaled_rel_x > 0 and scaled_rel_z > 0:
 					visible_face = red_face  # Front-right corner, default to front
-				elif rel_x < 0 and rel_z > 0:
+				elif scaled_rel_x < 0 and scaled_rel_z > 0:
 					visible_face = red_face  # Front-left corner, default to front
-				elif rel_x > 0 and rel_z < 0:
+				elif scaled_rel_x > 0 and scaled_rel_z < 0:
 					visible_face = yellow_face  # Back-right corner, default to right
 				else:
 					visible_face = purple_face  # Back-left corner, default to back
 			else:
 				# Normal diagonal line check
-				if rel_x > rel_z and rel_x > -rel_z:
+				if scaled_rel_x > scaled_rel_z and scaled_rel_x > -scaled_rel_z:
 					visible_face = yellow_face  # Right face (positive X)
-				elif rel_x < rel_z and rel_x < -rel_z:
+				elif scaled_rel_x < scaled_rel_z and scaled_rel_x < -scaled_rel_z:
 					visible_face = green_face   # Left face (negative X)
-				elif rel_z > rel_x and rel_z > -rel_x:
+				elif scaled_rel_z > scaled_rel_x and scaled_rel_z > -scaled_rel_x:
 					visible_face = red_face     # Front face (positive Z)
 				else:
 					visible_face = purple_face  # Back face (negative Z)
