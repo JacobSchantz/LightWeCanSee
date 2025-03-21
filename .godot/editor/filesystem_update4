@@ -1,2 +1,3 @@
-res://scripts/player.gd
-res://scripts/interactive_box.gd
+res://scenes/tutorial_level.tscn
+res://assets/textures/stars_texture.tres
+res://assets/skybox.tres
