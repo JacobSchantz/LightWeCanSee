@@ -33,7 +33,7 @@ func _ready():
 	add_to_group("level")
 	
 	# Initialize UI
-	update_instruction("Welcome! Move around the box - the closest face will light up. Press G to extend the box in that direction. Press SPACE to jump onto the box.")
+	update_instruction("Welcome! Move around the box - the closest face will light up. Press E to extend the box in that direction, or Q to shrink it. Press SPACE to jump onto the box.")
 	update_progress("Light We Can See")
 	
 	# Set up mouse capture for first-person control

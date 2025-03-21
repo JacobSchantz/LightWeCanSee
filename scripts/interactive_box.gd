@@ -260,3 +260,98 @@ func toggle_size():
 	
 	# Connect the tween completed signal to update face positions
 	box_tween.finished.connect(update_face_world_positions)
+
+# Function to shrink box size with animation
+func shrink_box():
+	# Cancel any existing tween
+	if box_tween and box_tween.is_valid():
+		box_tween.kill()
+	
+	# Create a new tween
+	box_tween = create_tween()
+	box_tween.set_ease(Tween.EASE_OUT)
+	box_tween.set_trans(Tween.TRANS_CUBIC)
+	
+	# Find which face is currently visible
+	var visible_face_index = -1
+	for i in range(faces.size()):
+		if faces[i].node.visible:
+			visible_face_index = i
+			break
+	
+	# If no face is visible, default to shrinking in the X direction
+	if visible_face_index == -1:
+		visible_face_index = 2  # Default to yellow face (right side)
+	
+	# Get the direction of the visible face
+	var direction = faces[visible_face_index].direction
+	var face_name = faces[visible_face_index].name
+	
+	# Determine which side to shrink based on direction
+	var side_key = ""
+	if direction.x > 0:
+		side_key = "x_pos"  # Right side
+	elif direction.x < 0:
+		side_key = "x_neg"  # Left side
+	elif direction.z > 0:
+		side_key = "z_pos"  # Front side
+	elif direction.z < 0:
+		side_key = "z_neg"  # Back side
+	
+	# Only shrink if we have expanded in this direction before
+	if expansion_count[side_key] <= 0:
+		print("Cannot shrink further in this direction")
+		return
+	
+	# Calculate the new scale and position
+	var current_scale = scale
+	var new_scale = current_scale
+	var position_offset = Vector3(0, 0, 0)
+	
+	if side_key == "x_pos" or side_key == "x_neg":
+		# X-axis shrinking
+		if current_scale.x > 1.0:
+			new_scale.x -= 1.0
+			position_offset.x = -direction.x * 0.75
+	elif side_key == "z_pos" or side_key == "z_neg":
+		# Z-axis shrinking
+		if current_scale.z > 1.0:
+			new_scale.z -= 1.0
+			position_offset.z = -direction.z * 0.75
+	
+	# Animate to shrunk size and position
+	box_tween.tween_property(self, "scale", new_scale, animation_duration)
+	box_tween.parallel().tween_property(self, "position", position + position_offset, animation_duration)
+	
+	# Decrement the expansion count for this side
+	expansion_count[side_key] -= 1
+	print("Box shrunk in direction of " + face_name + " (Remaining expansions: " + str(expansion_count[side_key]) + ")")
+	
+	# Connect the tween completed signal to update face positions
+	box_tween.finished.connect(update_face_world_positions)
+
+# Handle input for extending and shrinking the box
+func _input(event):
+	if event.is_action_pressed("extend_box"):
+		# Only extend if a face is visible (player is close enough)
+		var face_visible = false
+		for face_data in faces:
+			if face_data.node.visible:
+				face_visible = true
+				break
+		
+		if face_visible:
+			toggle_size()
+			get_viewport().set_input_as_handled()
+	
+	elif event.is_action_pressed("shrink_box"):
+		# Only shrink if a face is visible (player is close enough)
+		var face_visible = false
+		for face_data in faces:
+			if face_data.node.visible:
+				face_visible = true
+				break
+		
+		if face_visible:
+			shrink_box()
+			get_viewport().set_input_as_handled()
