@@ -4,11 +4,13 @@ extends "res://scripts/main.gd"
 @onready var tutorial_ui = $TutorialUI
 @onready var instruction_label = $TutorialUI/InstructionPanel/InstructionLabel
 @onready var progress_label = $TutorialUI/ProgressLabel
-@onready var blue_box = $PhysicsObjects/BlueBox
-@onready var red_face = $PhysicsObjects/BlueBox/RedFace
-@onready var green_face = $PhysicsObjects/BlueBox/GreenFace
-@onready var yellow_face = $PhysicsObjects/BlueBox/YellowFace
-@onready var purple_face = $PhysicsObjects/BlueBox/PurpleFace
+@onready var blue_box = $InteractiveBox
+@onready var red_face = $InteractiveBox/RedFace
+@onready var green_face = $InteractiveBox/GreenFace
+@onready var yellow_face = $InteractiveBox/YellowFace
+@onready var purple_face = $InteractiveBox/PurpleFace
+@onready var download_button = $TutorialUI/DownloadButton
+@onready var http_request = $HTTPRequest
 
 # Face offset
 const FACE_OFFSET = 0.76  # Offset for all faces
@@ -26,11 +28,21 @@ var proximity_areas = []
 var player_node = null
 var detection_radius = 2.0  # Detection radius for all faces
 
+# 3D model download
+var model_url = "https://example.com/path/to/model.glb"
+
 func _ready():
 	super._ready()
 	
 	# Add this level to the "level" group for box interactions
 	add_to_group("level")
+	
+	# Connect the download button
+	download_button.pressed.connect(_on_download_button_pressed)
+	
+	
+	# Connect the HTTP request completion signal
+	http_request.request_completed.connect(_on_request_completed)
 	
 	# Initialize UI
 	update_instruction("Welcome! Move around the box - the closest face will light up. Press E to extend the box in that direction, or Q to shrink it. Press SPACE to jump onto the box.")
@@ -108,3 +120,42 @@ func play_respawn_effect():
 	var tween = create_tween()
 	tween.tween_property(flash, "color:a", 0.0, 0.5)
 	tween.tween_callback(flash.queue_free)
+
+# Handle button press to download the 3D model
+func _on_download_button_pressed():
+	var mesh = load(temp_path) as Mesh
+var mesh_instance = MeshInstance3D.new()
+mesh_instance.mesh = mesh
+add_child(mesh_instance)
+	update_instruction("Downloading 3D model...")
+	# Start the download
+	http_request.request(model_url)
+
+# Handle the HTTP request completion
+func _on_request_completed(result, response_code, headers, body):
+	if result != HTTPRequest.RESULT_SUCCESS or response_code != 200:
+		update_instruction("Failed to download the 3D model.")
+		return
+
+	# Save the downloaded file temporarily
+	var temp_path = "user://temp_model.glb"
+	var file = FileAccess.open(temp_path, FileAccess.WRITE)
+	file.store_buffer(body)
+	file.close()
+	
+	# Load the model as a PackedScene
+	var loaded_scene = load(temp_path) as PackedScene
+	if loaded_scene:
+		# Instance the model and add it to the scene
+		var model_instance = loaded_scene.instantiate()
+		# Position the model in a visible location
+		model_instance.position = Vector3(0, 1.5, -3)  # Adjust position as needed
+		add_child(model_instance)
+		update_instruction("3D model loaded successfully!")
+	else:
+		update_instruction("Failed to load the 3D model.")
+	
+	# Clean up the temporary file
+	var dir = DirAccess.open("user://")
+	if dir:
+		dir.remove("temp_model.glb")

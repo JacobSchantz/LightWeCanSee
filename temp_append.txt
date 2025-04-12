@@ -1,3 +1,0 @@
-[node name="PauseMenu" parent="." instance=ExtResource("3_xp0yy")]
-visible = false
-process_mode = 3
