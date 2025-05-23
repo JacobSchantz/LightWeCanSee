@@ -28,6 +28,9 @@ var mobile_controls = null
 var last_touch_pos = Vector2.ZERO
 var touch_camera_rotation = false
 
+# Video interaction tracking
+var near_video_wall = false
+
 func _ready():
 	# Add player to the player group for interactions
 	add_to_group("player")
@@ -70,8 +73,8 @@ func _physics_process(delta):
 	if not is_on_floor():
 		velocity.y -= ProjectSettings.get_setting("physics/3d/default_gravity") * delta
 
-	# Handle Jump
-	if Input.is_action_just_pressed("ui_accept") and is_on_floor():
+	# Handle Jump - don't jump if near video wall (to allow video interaction)
+	if Input.is_action_just_pressed("ui_accept") and is_on_floor() and not near_video_wall:
 		velocity.y = JUMP_VELOCITY
 
 	# Get the input direction based on platform
@@ -151,7 +154,8 @@ func _input(event):
 			rotation.y -= delta.x * touch_rotation_speed
 			
 			# Vertical camera rotation - rotate the camera pivot
-			camera_angle -= delta.y * touch_rotation_speed
+			# FIXED: Changed -= to += to fix the inverted camera on mobile
+			camera_angle += delta.y * touch_rotation_speed
 			# Use the mobile-specific min_pitch to prevent looking below the floor
 			camera_angle = clamp(camera_angle, deg_to_rad(mobile_min_pitch), deg_to_rad(max_pitch))
 			pivot.rotation.x = camera_angle

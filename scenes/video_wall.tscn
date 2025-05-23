@@ -1,0 +1,54 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://scripts/video_wall.gd" id="1_script"]
+
+[sub_resource type="ViewportTexture" id="ViewportTexture_ytview"]
+viewport_path = NodePath("VideoViewport")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_screen"]
+resource_local_to_scene = true
+albedo_texture = SubResource("ViewportTexture_ytview")
+metallic_specular = 0.0
+emission_enabled = true
+emission = Color(1, 1, 1, 1)
+emission_energy_multiplier = 0.5
+emission_texture = SubResource("ViewportTexture_ytview")
+
+[sub_resource type="QuadMesh" id="QuadMesh_screen"]
+material = SubResource("StandardMaterial3D_screen")
+size = Vector2(3, 1.7)
+
+[node name="VideoWall" type="Node3D"]
+script = ExtResource("1_script")
+
+[node name="VideoScreen" type="MeshInstance3D" parent="."]
+mesh = SubResource("QuadMesh_screen")
+
+[node name="VideoViewport" type="SubViewport" parent="."]
+size = Vector2i(854, 480)
+render_target_update_mode = 4
+
+[node name="Control" type="Control" parent="VideoViewport"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="ColorRect" type="ColorRect" parent="VideoViewport/Control"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 1)
+
+[node name="HTMLContainer" type="Control" parent="VideoViewport/Control"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
