@@ -11,8 +11,9 @@ var spawn_position = Vector3.ZERO  # Store initial spawn position
 # Camera control
 var mouse_sensitivity = 0.002
 var camera_angle = 0
-var min_pitch = -50.0
+var min_pitch = -50.0  # Default min pitch for desktop
 var max_pitch = 70.0
+var mobile_min_pitch = -5.0  # Restricted pitch for mobile to prevent looking below floor
 var touch_rotation_speed = 0.02  # Reduced sensitivity for mobile touch rotation
 
 @onready var pivot = $CameraPivot
@@ -31,22 +32,29 @@ func _ready():
 	# Add player to the player group for interactions
 	add_to_group("player")
 	
-	# Capture mouse for camera control on desktop platforms
-	if OS.has_feature("pc"):
-		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
-	else:
-		# Don't capture mouse on mobile
-		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
-	
 	# Store initial spawn position
 	spawn_position = global_position
 	
-	# Setup mobile controls if available
-	if get_tree().get_root().has_node("MobileControls"):
-		mobile_controls = get_tree().get_root().get_node("MobileControls")
-		mobile_controls.interact_pressed.connect(func(): interact())
-		mobile_controls.extend_box_pressed.connect(func(): toggle_box_size())
-		mobile_controls.shrink_box_pressed.connect(func(): toggle_box_size())
+	# Platform-specific setup
+	if OS.has_feature("pc"):
+		# Desktop controls setup
+		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+		# Make sure mobile controls are hidden on desktop
+		if get_tree().get_root().has_node("MobileControls"):
+			get_tree().get_root().get_node("MobileControls").hide()
+	else:
+		# Mobile controls setup
+		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+		# Initialize camera with a safer angle on mobile
+		camera_angle = deg_to_rad(10.0)  # Start with a slight downward angle
+		pivot.rotation.x = camera_angle
+		
+		# Setup mobile controls if available
+		if get_tree().get_root().has_node("MobileControls"):
+			mobile_controls = get_tree().get_root().get_node("MobileControls")
+			mobile_controls.show() # Make sure mobile controls are visible
+			mobile_controls.extend_box_pressed.connect(func(): toggle_box_size())
+			mobile_controls.shrink_box_pressed.connect(func(): toggle_box_size())
 
 func _physics_process(delta):
 	# Don't process player movement when game is paused
@@ -66,9 +74,21 @@ func _physics_process(delta):
 	if Input.is_action_just_pressed("ui_accept") and is_on_floor():
 		velocity.y = JUMP_VELOCITY
 
-	# Get the input direction
-	# Note: Reversing up/down to fix the flipped forward/backward movement
-	var input_dir = Input.get_vector("ui_left", "ui_right", "ui_down", "ui_up")
+	# Get the input direction based on platform
+	var input_dir = Vector2.ZERO
+	
+	# Platform-specific input handling
+	if OS.has_feature("pc"):
+		# Desktop controls - use keyboard
+		# Note: Reversing up/down to fix the flipped forward/backward movement
+		input_dir = Input.get_vector("ui_left", "ui_right", "ui_down", "ui_up")
+	else:
+		# Mobile controls - use joystick if available
+		if mobile_controls != null:
+			# Get joystick vector and reverse Y for consistent forward/backward
+			var joy_vec = mobile_controls.get_joystick_vector()
+			# Flip the Y axis to match our control scheme
+			input_dir = Vector2(joy_vec.x, -joy_vec.y)
 	
 	# Calculate movement direction relative to camera orientation
 	# This makes movement relative to where the player is looking
@@ -132,7 +152,8 @@ func _input(event):
 			
 			# Vertical camera rotation - rotate the camera pivot
 			camera_angle -= delta.y * touch_rotation_speed
-			camera_angle = clamp(camera_angle, deg_to_rad(min_pitch), deg_to_rad(max_pitch))
+			# Use the mobile-specific min_pitch to prevent looking below the floor
+			camera_angle = clamp(camera_angle, deg_to_rad(mobile_min_pitch), deg_to_rad(max_pitch))
 			pivot.rotation.x = camera_angle
 			
 			last_touch_pos = event.position

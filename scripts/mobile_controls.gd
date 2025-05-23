@@ -5,7 +5,6 @@ extends CanvasLayer
 @onready var pause_button = $PauseButton
 
 signal pause_pressed
-signal interact_pressed
 signal extend_box_pressed
 signal shrink_box_pressed
 
@@ -15,12 +14,16 @@ var joy_vector = Vector2()
 var joy_max_distance = 100
 
 func _ready():
-	# Hide mobile controls on desktop platforms
+	# Completely hide all mobile controls on desktop platforms
 	if OS.has_feature("pc"):
+		# Make everything invisible
 		hide()
+		# Also hide all children to be extra sure
+		$ActionButtons.hide()
+		$Joystick.hide()
+		$PauseButton.hide()
 	
 	$PauseButton.pressed.connect(func(): pause_pressed.emit())
-	$ActionButtons/InteractButton.pressed.connect(func(): interact_pressed.emit())
 	$ActionButtons/ExtendButton.pressed.connect(func(): extend_box_pressed.emit())
 	$ActionButtons/ShrinkButton.pressed.connect(func(): shrink_box_pressed.emit())
 
@@ -54,6 +57,10 @@ func get_joystick_vector():
 	return joy_vector
 
 func _process(_delta):
+	# Only process mobile controls on mobile platforms
+	if OS.has_feature("pc"):
+		return
+	
 	if joystick_active:
 		# Simulate keyboard input based on joystick position
 		Input.action_press("ui_up") if joy_vector.y < -0.3 else Input.action_release("ui_up")

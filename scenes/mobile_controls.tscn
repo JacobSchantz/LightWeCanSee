@@ -78,14 +78,7 @@ grow_vertical = 0
 theme_override_constants/separation = 20
 alignment = 1
 
-[node name="InteractButton" type="Button" parent="ActionButtons"]
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_font_sizes/font_size = 24
-theme_override_styles/normal = SubResource("StyleBoxFlat_n6hnx")
-theme_override_styles/hover = SubResource("StyleBoxFlat_7xbmd")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_t8q3x")
-text = "F"
+
 
 [node name="ExtendButton" type="Button" parent="ActionButtons"]
 layout_mode = 2
