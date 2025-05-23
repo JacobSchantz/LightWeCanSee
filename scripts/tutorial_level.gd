@@ -10,6 +10,7 @@ extends "res://scripts/main.gd"
 @onready var yellow_face = $InteractiveBox/YellowFace
 @onready var purple_face = $InteractiveBox/PurpleFace
 @onready var download_button = $TutorialUI/DownloadButton
+@onready var center_button = $TutorialUI/CenterButton
 @onready var http_request = $HTTPRequest
 
 # Face offset
@@ -40,6 +41,8 @@ func _ready():
 	# Connect the download button
 	download_button.pressed.connect(_on_download_button_pressed)
 	
+	# Connect the center button
+	center_button.pressed.connect(_on_center_button_pressed)
 	
 	# Connect the HTTP request completion signal
 	http_request.request_completed.connect(_on_request_completed)
@@ -121,12 +124,44 @@ func play_respawn_effect():
 	tween.tween_property(flash, "color:a", 0.0, 0.5)
 	tween.tween_callback(flash.queue_free)
 
+# Handle center button press
+func _on_center_button_pressed():
+	# Create a colorful particle burst in the middle of the box
+	var interactive_box = $InteractiveBox
+	if interactive_box:
+		# Add a visual effect to show interaction
+		var effect_position = interactive_box.global_position
+		create_particle_burst(effect_position)
+		
+		# Double the number of bouncing balls in the box
+		if interactive_box.has_method("setup_particles"):
+			interactive_box.setup_particles(true) # Add more particles
+		
+		# Update instruction text
+		update_instruction("Interactive mode activated! More particles added to the box.")
+
+# Create a particle burst effect at the given position
+func create_particle_burst(position):
+	# Flash the box with a bright color
+	var box_mesh = $InteractiveBox/MeshInstance3D
+	if box_mesh:
+		var original_material = box_mesh.get_surface_override_material(0)
+		var flash_material = original_material.duplicate()
+		flash_material.albedo_color = Color(1, 0.7, 0.3, 0.8)
+		flash_material.emission_enabled = true
+		flash_material.emission = Color(1, 0.7, 0.3, 1)
+		flash_material.emission_energy_multiplier = 3.0
+		
+		# Apply the flash material
+		box_mesh.set_surface_override_material(0, flash_material)
+		
+		# Create a tween to restore the original material
+		var tween = create_tween()
+		tween.tween_interval(0.3)
+		tween.tween_callback(func(): box_mesh.set_surface_override_material(0, original_material))
+
 # Handle button press to download the 3D model
 func _on_download_button_pressed():
-	var mesh = load(temp_path) as Mesh
-var mesh_instance = MeshInstance3D.new()
-mesh_instance.mesh = mesh
-add_child(mesh_instance)
 	update_instruction("Downloading 3D model...")
 	# Start the download
 	http_request.request(model_url)

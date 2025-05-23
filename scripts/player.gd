@@ -13,6 +13,7 @@ var mouse_sensitivity = 0.002
 var camera_angle = 0
 var min_pitch = -50.0
 var max_pitch = 70.0
+var touch_rotation_speed = 0.02  # Reduced sensitivity for mobile touch rotation
 
 @onready var pivot = $CameraPivot
 @onready var camera = $CameraPivot/Camera3D
@@ -21,15 +22,31 @@ var max_pitch = 70.0
 # Box extension variables
 var target_box = null
 
+# Mobile control variables
+var mobile_controls = null
+var last_touch_pos = Vector2.ZERO
+var touch_camera_rotation = false
+
 func _ready():
 	# Add player to the player group for interactions
 	add_to_group("player")
 	
-	# Capture mouse for camera control
-	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+	# Capture mouse for camera control on desktop platforms
+	if OS.has_feature("pc"):
+		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+	else:
+		# Don't capture mouse on mobile
+		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	
 	# Store initial spawn position
 	spawn_position = global_position
+	
+	# Setup mobile controls if available
+	if get_tree().get_root().has_node("MobileControls"):
+		mobile_controls = get_tree().get_root().get_node("MobileControls")
+		mobile_controls.interact_pressed.connect(func(): interact())
+		mobile_controls.extend_box_pressed.connect(func(): toggle_box_size())
+		mobile_controls.shrink_box_pressed.connect(func(): toggle_box_size())
 
 func _physics_process(delta):
 	# Don't process player movement when game is paused
@@ -83,29 +100,78 @@ func _physics_process(delta):
 		toggle_box_size()
 
 func _input(event):
-	if event is InputEventMouseMotion:
-		# Only process mouse movement when game is not paused
-		if not get_tree().paused:
+	if get_tree().paused:
+		return
+		
+	if OS.has_feature("pc"):
+		if event is InputEventMouseMotion:
+			# Only process mouse movement when game is not paused
+			if not get_tree().paused:
+				# Horizontal camera rotation - rotate the player
+				rotation.y -= event.relative.x * mouse_sensitivity
+				
+				# Vertical camera rotation - rotate the camera pivot
+				camera_angle -= event.relative.y * mouse_sensitivity
+				camera_angle = clamp(camera_angle, deg_to_rad(min_pitch), deg_to_rad(max_pitch))
+				pivot.rotation.x = camera_angle
+	else:
+		# Mobile camera rotation via touch
+		if event is InputEventScreenTouch:
+			if event.position.x > get_viewport().size.x / 2:
+				if event.pressed:
+					touch_camera_rotation = true
+					last_touch_pos = event.position
+				else:
+					touch_camera_rotation = false
+					
+		elif event is InputEventScreenDrag and touch_camera_rotation:
+			var delta = event.position - last_touch_pos
+			
 			# Horizontal camera rotation - rotate the player
-			rotation.y -= event.relative.x * mouse_sensitivity
+			rotation.y -= delta.x * touch_rotation_speed
 			
 			# Vertical camera rotation - rotate the camera pivot
-			camera_angle -= event.relative.y * mouse_sensitivity
+			camera_angle -= delta.y * touch_rotation_speed
 			camera_angle = clamp(camera_angle, deg_to_rad(min_pitch), deg_to_rad(max_pitch))
 			pivot.rotation.x = camera_angle
+			
+			last_touch_pos = event.position
 	
 	# NOTE: Escape key handling is now done in the main script to properly show the pause menu
 
-# Simple function to toggle box size
+# Enhanced function to toggle box size
 func toggle_box_size():
-	# Find the box
-	var boxes = get_tree().get_nodes_in_group("extendable_box")
-	if boxes.size() > 0:
-		target_box = boxes[0]  # Just take the first box for simplicity
+	# Try to find the box through multiple methods
+	
+	# Method 1: Check if we already have a reference
+	if target_box == null or !is_instance_valid(target_box):
+		# Method 2: Try to find by group
+		var boxes = get_tree().get_nodes_in_group("extendable_box")
+		if boxes.size() > 0:
+			target_box = boxes[0]
 		
-		# Call the toggle_size method on the box
-		if target_box.has_method("toggle_size"):
-			target_box.toggle_size()
+		# Method 3: Try to find by node name
+		if target_box == null:
+			if get_tree().get_root().has_node("InteractiveBox"):
+				target_box = get_tree().get_root().get_node("InteractiveBox")
+			elif get_tree().get_current_scene().has_node("InteractiveBox"):
+				target_box = get_tree().get_current_scene().get_node("InteractiveBox")
+
+	# If we found the box, call its toggle_size method
+	if target_box != null and target_box.has_method("toggle_size"):
+		print("Toggling box size from mobile")
+		target_box.toggle_size()
+	else:
+		print("Could not find interactive box for size toggle")
+		# Print scene tree for debugging
+		print_tree()
+			
+# Function for interaction
+func interact():
+	if interaction_ray.is_colliding():
+		var collider = interaction_ray.get_collider()
+		if collider.has_method("interact"):
+			collider.interact()
 
 # Handles restarting the level when the player falls off the world
 func restart_level():

@@ -82,6 +82,7 @@ shrink_box={
 [rendering]
 
 renderer/rendering_method="gl_compatibility"
+textures/vram_compression/import_etc2_astc=true
 anti_aliasing/quality/msaa_2d=2
 anti_aliasing/quality/msaa_3d=2
 environment/defaults/default_clear_color=Color(0.14, 0.14, 0.14, 1)

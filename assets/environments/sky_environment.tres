@@ -1,7 +1,7 @@
-[gd_resource type="Environment" load_steps=4 format=3 uid="uid://sky_environment"]
+[gd_resource type="Environment" load_steps=5 format=3 uid="uid://b566vj4jihl08"]
 
-[ext_resource type="Shader" path="res://assets/sky.gdshader" id="1_sky"]
-[ext_resource type="Texture2D" path="res://stars.png" id="2_stars"]
+[ext_resource type="Shader" uid="uid://da5nl1hnavigd" path="res://assets/sky.gdshader" id="1_sky"]
+[ext_resource type="Texture2D" uid="uid://xlg4w63587cm" path="res://assets/stars.png" id="2_stars"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_msgkm"]
 shader = ExtResource("1_sky")
