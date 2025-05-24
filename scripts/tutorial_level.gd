@@ -351,8 +351,8 @@ func create_video_wall():
 
 # Called when the resume button is pressed
 func _on_resume_button_pressed():
-	# No longer used for audio control - kept for compatibility
-	pass
+	# Call the parent method to properly resume the game
+	super._on_resume_button_pressed()
 
 # Handle status label updates
 func update_status_label():
